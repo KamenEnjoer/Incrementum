@@ -14,25 +14,30 @@ public class CardsGeneration {
         Activity activity = (Activity) context;
         LinearLayout topCardsContainer = activity.findViewById(R.id.top_cards_container);
         LinearLayout bottomCardsContainer = activity.findViewById(R.id.bottom_cards_container);
-        generateDraggableCards(topCardsContainer, 3, "Top", context);
-        generateDraggableCards(bottomCardsContainer, 3, "Bottom", context);
+        generateDraggableCards(topCardsContainer, 2, "Top", "green", context);
+        generateDraggableCards(topCardsContainer, 2, "Top", "blue", context);
+        generateDraggableCards(bottomCardsContainer, 2, "Bottom", "green", context);
+        generateDraggableCards(bottomCardsContainer, 2, "Bottom", "blue", context);
     }
 
-    private static void generateDraggableCards(LinearLayout container, int count, String prefix, Context context) {
+    private static void generateDraggableCards(LinearLayout container, int count, String prefix, String type, Context context) {
 
         for (int i = 0; i < count; i++) {
             TextView card = new TextView(context);
             card.setText(prefix + " " + (i + 1));
-            card.setBackgroundResource(R.drawable.card_background);
             card.setGravity(android.view.Gravity.CENTER);
             card.setPadding(16, 16, 16, 16);
 
-            card.setTag(prefix + "_" + i);
+            card.setTag(prefix + "_" + i + "_" + type);
 
-            int widthInPx = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 100, context.getResources().getDisplayMetrics());
-            int heightInPx = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 40, context.getResources().getDisplayMetrics());
+            // Устанавливаем цвет фона в зависимости от типа
+            if (prefix.equals("Top")) {
+                card.setBackgroundColor(type.equals("green") ? 0xFF99FF99 : 0xFF99CCFF); // Светло-зелёный или светло-голубой
+            } else {
+                card.setBackgroundColor(type.equals("green") ? 0xFF228B22 : 0xFF0000CD); // Тёмно-зелёный или тёмно-голубой
+            }
 
-            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(widthInPx, heightInPx);
+            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(300, 100);
             params.setMargins(8, 8, 8, 8);
             card.setLayoutParams(params);
 
@@ -44,7 +49,7 @@ public class CardsGeneration {
 
                 v.startDragAndDrop(data, shadowBuilder, v, 0);
                 return true;
-            });;
+            });
 
             container.addView(card);
         }

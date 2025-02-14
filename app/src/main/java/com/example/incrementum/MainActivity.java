@@ -20,13 +20,9 @@ public class MainActivity extends AppCompatActivity {
         GridLayout gameGrid = findViewById(R.id.game_grid);
         GameFieldGeneration.generateGameField(gameGrid, this);
 
-        toggleTurn = new ToggleTurn();
-        toggleTurn.toggleTurn(true, this);
         CardsGeneration.generateCards(this);
-    }
-
-    public void endTurn(boolean isBottomTurn) {
-        toggleTurn.toggleTurn(isBottomTurn, this);
+        ToggleTurn toggleTurn = new ToggleTurn();
+        toggleTurn.initializeTurn(this);
     }
 }
 
