@@ -63,10 +63,10 @@ public class GameFieldGeneration {
                         }
 
                         if (draggedTag.startsWith("Top")) {
-                            v.setBackgroundColor(v.getContext().getResources().getColor(android.R.color.holo_red_light));
+                            v.setBackgroundColor(v.getContext().getColor(android.R.color.holo_red_light));
                             ((MainActivity) v.getContext()).endTurn(true);
                         } else if (draggedTag.startsWith("Bottom")) {
-                            v.setBackgroundColor(v.getContext().getResources().getColor(android.R.color.holo_orange_light));
+                            v.setBackgroundColor(v.getContext().getColor(android.R.color.holo_orange_light));
                             ((MainActivity) v.getContext()).endTurn(false);
                         }
 

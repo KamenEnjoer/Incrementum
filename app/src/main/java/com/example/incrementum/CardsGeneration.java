@@ -1,5 +1,6 @@
 package com.example.incrementum;
 
+import android.app.Activity;
 import android.content.ClipData;
 import android.content.ClipDescription;
 import android.content.Context;
@@ -9,13 +10,16 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 public class CardsGeneration {
-
-    static public void generateCards(LinearLayout topCardsContainer, LinearLayout bottomCardsContainer, Context context) {
+    static public void generateCards(Context context) {
+        Activity activity = (Activity) context;
+        LinearLayout topCardsContainer = activity.findViewById(R.id.top_cards_container);
+        LinearLayout bottomCardsContainer = activity.findViewById(R.id.bottom_cards_container);
         generateDraggableCards(topCardsContainer, 3, "Top", context);
         generateDraggableCards(bottomCardsContainer, 3, "Bottom", context);
     }
 
     private static void generateDraggableCards(LinearLayout container, int count, String prefix, Context context) {
+
         for (int i = 0; i < count; i++) {
             TextView card = new TextView(context);
             card.setText(prefix + " " + (i + 1));
