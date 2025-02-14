@@ -1,39 +1,40 @@
 package com.example.incrementum;
 
-import static java.sql.Types.NULL;
-
+import android.app.Activity;
 import android.content.Context;
 import android.view.View;
 import android.widget.LinearLayout;
 
 public class ToggleTurn {
-    public boolean isBottomTurn = true; // Начальный ход — нижняя сторона
+    private static boolean isBottomTurn = true; // Первый ход нижних
 
-    // Метод для переключения хода
-    public void toggleTurn(boolean turn, LinearLayout topCardsContainer, LinearLayout bottomCardsContainer, Context context) {
-        isBottomTurn = turn;
-        // Обновляем состояние верхних карточек
-        for (int i = 0; i < topCardsContainer.getChildCount(); i++) {
-            View card = topCardsContainer.getChildAt(i);
-            if (isBottomTurn) {
-                card.setAlpha(0.5f); // Делаем карточку полупрозрачной
-                card.setEnabled(false); // Блокируем карточку
-            } else {
-                card.setAlpha(1.0f); // Восстанавливаем видимость
-                card.setEnabled(true); // Разблокируем карточку
-            }
-        }
+    public void initializeTurn(Context context) {
+        Activity activity = (Activity) context;
+        LinearLayout topCardsContainer = activity.findViewById(R.id.top_cards_container);
+        LinearLayout bottomCardsContainer = activity.findViewById(R.id.bottom_cards_container);
 
-        // Обновляем состояние нижних карточек
-        for (int i = 0; i < bottomCardsContainer.getChildCount(); i++) {
-            View card = bottomCardsContainer.getChildAt(i);
-            if (isBottomTurn) {
-                card.setAlpha(1.0f); // Восстанавливаем видимость
-                card.setEnabled(true); // Разблокируем карточку
-            } else {
-                card.setAlpha(0.5f); // Делаем карточку полупрозрачной
-                card.setEnabled(false); // Блокируем карточку
-            }
+        // В начале игры блокируем верхние карточки
+        toggleTurn(topCardsContainer, false);
+        toggleTurn(bottomCardsContainer, true);
+    }
+
+    public void switchTurn(Context context) {
+        isBottomTurn = !isBottomTurn; // Меняем ход
+
+        Activity activity = (Activity) context;
+        LinearLayout topCardsContainer = activity.findViewById(R.id.top_cards_container);
+        LinearLayout bottomCardsContainer = activity.findViewById(R.id.bottom_cards_container);
+
+        // Блокируем карточки неходящего игрока
+        toggleTurn(topCardsContainer, !isBottomTurn);
+        toggleTurn(bottomCardsContainer, isBottomTurn);
+    }
+
+    private void toggleTurn(LinearLayout cardsContainer, boolean isTurn) {
+        for (int i = 0; i < cardsContainer.getChildCount(); i++) {
+            View card = cardsContainer.getChildAt(i);
+            card.setAlpha(isTurn ? 1.0f : 0.5f);
+            card.setEnabled(isTurn);
         }
     }
 }

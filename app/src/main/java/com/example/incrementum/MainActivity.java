@@ -9,8 +9,7 @@ import android.widget.LinearLayout;
 import androidx.appcompat.app.AppCompatActivity;
 
 public class MainActivity extends AppCompatActivity {
-    public LinearLayout topCardsContainer;
-    public LinearLayout bottomCardsContainer;
+
     public ToggleTurn toggleTurn;
 
     @Override
@@ -21,15 +20,9 @@ public class MainActivity extends AppCompatActivity {
         GridLayout gameGrid = findViewById(R.id.game_grid);
         GameFieldGeneration.generateGameField(gameGrid, this);
 
-        topCardsContainer = findViewById(R.id.top_cards_container);
-        bottomCardsContainer = findViewById(R.id.bottom_cards_container);
-        toggleTurn = new ToggleTurn();
-        toggleTurn.toggleTurn(true, topCardsContainer, bottomCardsContainer, this);
-        CardsGeneration.generateCards(topCardsContainer, bottomCardsContainer, this);
-    }
-
-    public void endTurn(boolean turn) {
-        toggleTurn.toggleTurn(turn, topCardsContainer, bottomCardsContainer, this);
+        CardsGeneration.generateCards(this);
+        ToggleTurn toggleTurn = new ToggleTurn();
+        toggleTurn.initializeTurn(this);
     }
 }
 
