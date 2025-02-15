@@ -4,6 +4,10 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.ClipData;
 import android.content.ClipDescription;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.LayerDrawable;
 import android.util.Log;
 import android.view.DragEvent;
 import android.view.View;
@@ -33,9 +37,7 @@ public class GameFieldGeneration {
             params.setMargins(4, 4, 4, 4);
 
             cell.setLayoutParams(params);
-
             setupDragAndDropForCell(cell, context);
-
             gridLayout.addView(cell);
         }
     }
@@ -59,27 +61,28 @@ public class GameFieldGeneration {
                     ClipData.Item item = event.getClipData().getItemAt(0);
                     String draggedTag = item.getText().toString();
 
-                    Log.d("GameField", "Dragged tag: " + draggedTag);
-
                     if (v instanceof TextView) {
                         TextView textViewCell = (TextView) v;
-                        // Храним текущие состояния фона и рамки
-                        boolean hasGreenBackground = textViewCell.getTag() != null && textViewCell.getTag().equals("green");
-                        boolean hasBlueBorder = textViewCell.getTag() != null && textViewCell.getTag().equals("blue");
 
-                        // Добавляем зелёный фон, если не установлен
-                        if (draggedTag.contains("green") && !hasGreenBackground) {
-                            textViewCell.setBackgroundColor(v.getContext().getColor(android.R.color.holo_green_light)); // Зеленый цвет
-                            textViewCell.setTag("green"); // Обновляем тег ячейки
-                        }
+                        String newTag = textViewCell.getTag() != null ? textViewCell.getTag().toString() : "";
+                        if (draggedTag.contains("green") && !newTag.contains("green")) newTag += " green";
+                        else if (draggedTag.contains("blue") && !newTag.contains("blue")) newTag += " blue";
+                        else return true;
+                        textViewCell.setTag(newTag.trim());
 
-                        // Добавляем синюю рамку, если она ещё не установлена
-                        if (draggedTag.contains("blue") && !hasBlueBorder) {
-                            textViewCell.setBackground(v.getContext().getDrawable(R.drawable.blue_border)); // Синяя рамка
-                            textViewCell.setTag("blue"); // Обновляем тег ячейки
-                        }
+                        Drawable originalBackground = textViewCell.getBackground();
+                        boolean alreadyHasBlueBorder = textViewCell.getTag() != null && textViewCell.getTag().toString().contains("blue");
+                        Drawable greenBackground = draggedTag.contains("green") ? context.getDrawable(R.drawable.green_background) : null;
+                        Drawable blueBorder = (draggedTag.contains("blue") || alreadyHasBlueBorder) ? context.getDrawable(R.drawable.blue_border) : null;
 
-                        // Удаляем карточку из контейнера
+                        Drawable[] layers = new Drawable[]{
+                                originalBackground != null ? originalBackground : context.getDrawable(R.drawable.card_background), // Базовый фон
+                                greenBackground != null ? greenBackground : new ColorDrawable(Color.TRANSPARENT), // Зелёный фон
+                                blueBorder != null ? blueBorder : new ColorDrawable(Color.TRANSPARENT)  // Синяя рамка
+                        };
+                        LayerDrawable layerDrawable = new LayerDrawable(layers);
+                        textViewCell.setBackground(layerDrawable);
+
                         View draggedView = (View) event.getLocalState();
                         ViewGroup parent = (ViewGroup) draggedView.getParent();
                         if (parent != null) {
