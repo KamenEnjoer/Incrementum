@@ -6,26 +6,24 @@ import android.view.View;
 import android.widget.LinearLayout;
 
 public class ToggleTurn {
-    private static boolean isBottomTurn = true; // Первый ход нижних
+    private static boolean isBottomTurn = true;
 
     public void initializeTurn(Context context) {
         Activity activity = (Activity) context;
         LinearLayout topCardsContainer = activity.findViewById(R.id.top_cards_container);
         LinearLayout bottomCardsContainer = activity.findViewById(R.id.bottom_cards_container);
 
-        // В начале игры блокируем верхние карточки
         toggleTurn(topCardsContainer, false);
         toggleTurn(bottomCardsContainer, true);
     }
 
     public void switchTurn(Context context) {
-        isBottomTurn = !isBottomTurn; // Меняем ход
+        isBottomTurn = !isBottomTurn;
 
         Activity activity = (Activity) context;
         LinearLayout topCardsContainer = activity.findViewById(R.id.top_cards_container);
         LinearLayout bottomCardsContainer = activity.findViewById(R.id.bottom_cards_container);
 
-        // Блокируем карточки неходящего игрока
         toggleTurn(topCardsContainer, !isBottomTurn);
         toggleTurn(bottomCardsContainer, isBottomTurn);
     }

@@ -1,10 +1,7 @@
 package com.example.incrementum;
 
-import android.content.Context;
 import android.os.Bundle;
-import android.view.View;
 import android.widget.GridLayout;
-import android.widget.LinearLayout;
 
 import androidx.appcompat.app.AppCompatActivity;
 
