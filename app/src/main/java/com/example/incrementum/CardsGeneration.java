@@ -9,19 +9,20 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 public class CardsGeneration {
-    static public void generateCards(Context context) {
+    public void generateCards(Context context) {
         Activity activity = (Activity) context;
         LinearLayout topCardsContainer = activity.findViewById(R.id.top_cards_container);
         LinearLayout bottomCardsContainer = activity.findViewById(R.id.bottom_cards_container);
         for (int i=0; i<3; i++){
-            generateDraggableCards(topCardsContainer, "Top", "green", context);
-            generateDraggableCards(bottomCardsContainer,"Bottom", "green", context);
+            generateDraggableCards(topCardsContainer,"green", context);
+            generateDraggableCards(bottomCardsContainer, "green", context);
         }
-        generateDraggableCards(topCardsContainer, "Top", "blue", context);
-        generateDraggableCards(bottomCardsContainer,"Bottom", "blue", context);
+        generateDraggableCards(topCardsContainer, "blue", context);
+        generateDraggableCards(bottomCardsContainer, "blue", context);
     }
 
-    private static void generateDraggableCards(LinearLayout container, String prefix, String type, Context context) {
+    public void generateDraggableCards(LinearLayout container, String type, Context context) {
+        String prefix = container.getId() == R.id.top_cards_container ? "Top" : "Bottom";
         TextView card = new TextView(context);
         card.setText(prefix);
         card.setGravity(android.view.Gravity.CENTER);
