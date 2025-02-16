@@ -6,26 +6,22 @@ import android.view.View;
 import android.widget.LinearLayout;
 
 public class ToggleTurn {
-    private static boolean isBottomTurn = true; // Первый ход нижних
+    private static boolean isBottomTurn = true;
+    private static LinearLayout topCardsContainer;
+    private static LinearLayout bottomCardsContainer;
 
     public void initializeTurn(Context context) {
         Activity activity = (Activity) context;
-        LinearLayout topCardsContainer = activity.findViewById(R.id.top_cards_container);
-        LinearLayout bottomCardsContainer = activity.findViewById(R.id.bottom_cards_container);
+        topCardsContainer = activity.findViewById(R.id.top_cards_container);
+        bottomCardsContainer = activity.findViewById(R.id.bottom_cards_container);
 
-        // В начале игры блокируем верхние карточки
         toggleTurn(topCardsContainer, false);
         toggleTurn(bottomCardsContainer, true);
     }
 
     public void switchTurn(Context context) {
-        isBottomTurn = !isBottomTurn; // Меняем ход
+        isBottomTurn = !isBottomTurn;
 
-        Activity activity = (Activity) context;
-        LinearLayout topCardsContainer = activity.findViewById(R.id.top_cards_container);
-        LinearLayout bottomCardsContainer = activity.findViewById(R.id.bottom_cards_container);
-
-        // Блокируем карточки неходящего игрока
         toggleTurn(topCardsContainer, !isBottomTurn);
         toggleTurn(bottomCardsContainer, isBottomTurn);
     }
@@ -36,5 +32,10 @@ public class ToggleTurn {
             card.setAlpha(isTurn ? 1.0f : 0.5f);
             card.setEnabled(isTurn);
         }
+    }
+
+    public LinearLayout currentPlayer(){
+        if (isBottomTurn) return bottomCardsContainer;
+        else return topCardsContainer;
     }
 }

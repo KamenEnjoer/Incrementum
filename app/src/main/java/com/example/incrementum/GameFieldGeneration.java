@@ -8,7 +8,6 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
-import android.util.Log;
 import android.view.DragEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,7 +25,6 @@ public class GameFieldGeneration {
         for (int i = 0; i < totalCells; i++) {
             TextView cell = new TextView(context);
             cell.setBackgroundResource(R.drawable.card_background);
-            cell.setText("");
             cell.setGravity(android.view.Gravity.CENTER);
 
             GridLayout.LayoutParams params = new GridLayout.LayoutParams();
@@ -70,15 +68,11 @@ public class GameFieldGeneration {
                         else return true;
                         textViewCell.setTag(newTag.trim());
 
-                        Drawable originalBackground = textViewCell.getBackground();
                         boolean alreadyHasBlueBorder = textViewCell.getTag() != null && textViewCell.getTag().toString().contains("blue");
-                        Drawable greenBackground = draggedTag.contains("green") ? context.getDrawable(R.drawable.green_background) : null;
-                        Drawable blueBorder = (draggedTag.contains("blue") || alreadyHasBlueBorder) ? context.getDrawable(R.drawable.blue_border) : null;
-
                         Drawable[] layers = new Drawable[]{
-                                originalBackground != null ? originalBackground : context.getDrawable(R.drawable.card_background), // Базовый фон
-                                greenBackground != null ? greenBackground : new ColorDrawable(Color.TRANSPARENT), // Зелёный фон
-                                blueBorder != null ? blueBorder : new ColorDrawable(Color.TRANSPARENT)  // Синяя рамка
+                                textViewCell.getBackground() != null ? textViewCell.getBackground() : context.getDrawable(R.drawable.card_background),
+                                draggedTag.contains("green") ? context.getDrawable(R.drawable.green_background) : new ColorDrawable(Color.TRANSPARENT),
+                                (draggedTag.contains("blue") || alreadyHasBlueBorder) ? context.getDrawable(R.drawable.blue_border) : new ColorDrawable(Color.TRANSPARENT)
                         };
                         LayerDrawable layerDrawable = new LayerDrawable(layers);
                         textViewCell.setBackground(layerDrawable);
