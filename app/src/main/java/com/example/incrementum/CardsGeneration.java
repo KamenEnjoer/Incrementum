@@ -5,8 +5,11 @@ import android.content.ClipData;
 import android.content.ClipDescription;
 import android.content.Context;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import androidx.appcompat.app.AppCompatActivity;
+
 
 public class CardsGeneration {
     public void generateCards(Context context) {
@@ -23,21 +26,43 @@ public class CardsGeneration {
 
     public void generateDraggableCards(LinearLayout container, String type, Context context) {
         String prefix = container.getId() == R.id.top_cards_container ? "Top" : "Bottom";
-        TextView card = new TextView(context);
-        card.setText(prefix);
+
+        // Создаём контейнер для карточки
+        LinearLayout card = new LinearLayout(context);
+        card.setOrientation(LinearLayout.VERTICAL);
         card.setGravity(android.view.Gravity.CENTER);
         card.setPadding(16, 16, 16, 16);
         card.setTag(prefix + "_" + type);
 
-        if (prefix.equals("Top")) {
-            card.setBackgroundColor(type.equals("green") ? 0xFF99FF99 : 0xFF99CCFF); // Светло-зелёный или светло-голубой
-        } else {
-            card.setBackgroundColor(type.equals("green") ? 0xFF228B22 : 0xFF0000CD); // Тёмно-зелёный или тёмно-голубой
-        }
+        // Устанавливаем цвет фона контейнера
+        int backgroundColor = type.equals("green") ? (prefix.equals("Top") ? 0xFF99FF99 : 0xFF228B22)
+                : (prefix.equals("Top") ? 0xFF99CCFF : 0xFF0000CD);
+        card.setBackgroundColor(backgroundColor);
 
-        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(300, 100);
+        // Создаём картинку
+        ImageView imageView = new ImageView(context);
+        imageView.setLayoutParams(new LinearLayout.LayoutParams(100, 100));
+        imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
+
+        // Создаём текст
+        TextView textView = new TextView(context);
+        textView.setText(prefix);
+        textView.setGravity(android.view.Gravity.CENTER);
+        textView.setTextSize(16);
+        textView.setPadding(0, 8, 0, 0);
+
+        card.addView(imageView);
+        card.addView(textView);
+
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(250, 350);
         params.setMargins(8, 8, 8, 8);
         card.setLayoutParams(params);
+
+        card.setOnClickListener(v -> {
+            String color = type.equals("green") ? "Green" : "Blue";
+            InfoFragment infoFragment = InfoFragment.newInstance("Цвет карточки: " + color);
+            infoFragment.show(((AppCompatActivity) context).getSupportFragmentManager(), "cardInfo");
+        });
 
         card.setOnLongClickListener(v -> {
             ClipData.Item item = new ClipData.Item(v.getTag().toString());

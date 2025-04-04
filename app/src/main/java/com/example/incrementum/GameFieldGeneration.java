@@ -13,6 +13,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.GridLayout;
 import android.widget.TextView;
+import androidx.appcompat.app.AppCompatActivity;
+
 
 public class GameFieldGeneration {
 
@@ -42,6 +44,17 @@ public class GameFieldGeneration {
 
     @SuppressLint("UseCompatLoadingForDrawables")
     private static void setupDragAndDropForCell(View cell, Context context) {
+        cell.setOnClickListener(v -> {
+            if (v instanceof TextView) {
+                TextView textViewCell = (TextView) v;
+                String tag = textViewCell.getTag() != null ? textViewCell.getTag().toString() : "Пустая клетка";
+
+                // Создаём и показываем фрагмент
+                InfoFragment infoFragment = InfoFragment.newInstance("Состояние клетки:\n" + tag);
+                infoFragment.show(((AppCompatActivity) context).getSupportFragmentManager(), "cellInfo");
+            }
+        });
+
         cell.setOnDragListener((v, event) -> {
             switch (event.getAction()) {
                 case DragEvent.ACTION_DRAG_STARTED:

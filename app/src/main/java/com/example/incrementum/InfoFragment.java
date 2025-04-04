@@ -1,6 +1,5 @@
 package com.example.incrementum;
 
-import android.graphics.Color;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,12 +10,12 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 
-public class CardInfoFragment extends DialogFragment {
+public class InfoFragment extends DialogFragment {
 
     private static final String ARG_COLOR = "color";
 
-    public static CardInfoFragment newInstance(String color) {
-        CardInfoFragment fragment = new CardInfoFragment();
+    public static InfoFragment newInstance(String color) {
+        InfoFragment fragment = new InfoFragment();
         Bundle args = new Bundle();
         args.putString(ARG_COLOR, color);
         fragment.setArguments(args);
@@ -26,13 +25,12 @@ public class CardInfoFragment extends DialogFragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_card_info, container, false);
+        View view = inflater.inflate(R.layout.fragment_info, container, false);
 
-        TextView colorInfoText = view.findViewById(R.id.color_info_text);
+        TextView infoText = view.findViewById(R.id.description_text);
 
         if (getArguments() != null) {
-            String color = getArguments().getString(ARG_COLOR, "Unknown");
-            colorInfoText.setText("Цвет карточки: " + color);
+            infoText.setText(getArguments().getString(ARG_COLOR, "Unknown"));
         }
 
         view.setOnClickListener(v -> dismiss()); // Закрытие по нажатию
