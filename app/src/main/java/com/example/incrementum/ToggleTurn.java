@@ -4,11 +4,13 @@ import android.app.Activity;
 import android.content.Context;
 import android.view.View;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 
 public class ToggleTurn {
     private static boolean isBottomTurn = true;
     private static LinearLayout topCardsContainer;
     private static LinearLayout bottomCardsContainer;
+    private static ProgressBar stepsCounter;
 
     public void initializeTurn(Context context) {
         Activity activity = (Activity) context;
@@ -20,6 +22,13 @@ public class ToggleTurn {
     }
 
     public void switchTurn(Context context) {
+        Activity activity = (Activity) context;
+        stepsCounter = activity.findViewById(R.id.steps_counter);
+        stepsCounter.setProgress(stepsCounter.getProgress()+1);
+        if (stepsCounter.getProgress() == 100){
+            return;
+        }
+
         isBottomTurn = !isBottomTurn;
 
         toggleTurn(topCardsContainer, !isBottomTurn);

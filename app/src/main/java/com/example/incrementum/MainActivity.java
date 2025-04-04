@@ -18,14 +18,6 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        GridLayout gameGrid = findViewById(R.id.game_grid);
-        GameFieldGeneration.generateGameField(gameGrid, this);
-
-        cardsGeneration =  new CardsGeneration();
-        cardsGeneration.generateCards(this);
-        toggleTurn = new ToggleTurn();
-        toggleTurn.initializeTurn(this);
-
         plantsButton = findViewById(R.id.plants_button);
         plantsButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -40,6 +32,14 @@ public class MainActivity extends AppCompatActivity {
                 addNewCard("blue");
             }
         });
+
+        GridLayout gameGrid = findViewById(R.id.game_grid);
+        GameFieldGeneration.generateGameField(gameGrid, this);
+
+        cardsGeneration = new CardsGeneration();
+        cardsGeneration.generateCards(this);
+        toggleTurn = new ToggleTurn();
+        toggleTurn.initializeTurn(this);
     }
 
     public void addNewCard(String type){
@@ -47,4 +47,3 @@ public class MainActivity extends AppCompatActivity {
         toggleTurn.switchTurn(this);
     }
 }
-
