@@ -22,14 +22,14 @@ public class MainActivity extends AppCompatActivity {
         plantsButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                addNewCard("green");
+                addNewCard("organizmas");
             }
         });
         weatherButton = findViewById(R.id.weather_button);
         weatherButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                addNewCard("blue");
+                addNewCard("oras");
             }
         });
 
@@ -42,8 +42,22 @@ public class MainActivity extends AppCompatActivity {
         toggleTurn.initializeTurn(this);
     }
 
-    public void addNewCard(String type){
-        cardsGeneration.generateDraggableCards(toggleTurn.currentPlayer(), type, this);
+    public void addNewCard(String type) {
+        // Создание объекта Card с нужными данными
+        Card newCard = new Card(
+                "Name of the Card",  // Замени на реальное имя
+                "Description of the Card",  // Замени на реальное описание
+                type,  // Тип карты (organizmas/oras)
+                1,  // Уровень
+                3,  // Длительность
+                null  // Может быть null, если поле не задано
+        );
+
+        // Добавление карточки в контейнер
+        cardsGeneration.generateDraggableCards(toggleTurn.currentPlayer(), newCard, this);
+
+        // Переключение хода
         toggleTurn.switchTurn(this);
     }
+
 }

@@ -1,10 +1,12 @@
 const mongoose = require('mongoose');
 
 const cardSchema = new mongoose.Schema({
-  name: String,
-  type: String,
-  color: String,
-  // Добавь здесь другие поля, если они есть в коллекции
-}, { collection: 'incrementum_cards' }); // явно указываем коллекцию
+    name: String,
+    description: String,
+    type: String,
+    level: Number,
+    duration: Number,
+    square: Number,
+}, { collection: "incrementum_cards" });
 
 module.exports = mongoose.model('Card', cardSchema);
