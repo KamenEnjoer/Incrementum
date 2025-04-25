@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.ClipData;
 import android.content.ClipDescription;
 import android.content.Context;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -46,11 +47,13 @@ public class CardsGeneration {
 
                     ((Activity) context).runOnUiThread(() -> callback.accept(cards));
                 }
+                else Log.d("CARD_GEN", "Ответа нет");
             }
         });
     }
 
     public void generateCards(Context context) {
+        Log.d("CARD_GEN", "Вызывается метод generateCards");
         Activity activity = (Activity) context;
         LinearLayout topCardsContainer = activity.findViewById(R.id.top_cards_container);
         LinearLayout bottomCardsContainer = activity.findViewById(R.id.bottom_cards_container);
@@ -59,12 +62,17 @@ public class CardsGeneration {
             for (Card card : cards) {
                 generateDraggableCards(topCardsContainer, card, context);
                 generateDraggableCards(bottomCardsContainer, card, context);
+                Log.d("CARD_GEN", "Карты: " + card.getName());
+            }
+            if (cards == null){
+                Log.d("CARD_GEN", "Карт нет!");
             }
         });
     }
 
     public void generateDraggableCards(LinearLayout container, Card card, Context context) {
         String prefix = container.getId() == R.id.top_cards_container ? "Top" : "Bottom";
+        Log.d("CARD_GEN", "Вызов метода успешен");
 
         // Создаём контейнер для карточки
         LinearLayout cardContainer = new LinearLayout(context);
@@ -73,6 +81,7 @@ public class CardsGeneration {
         cardContainer.setPadding(16, 16, 16, 16);
         cardContainer.setTag(prefix + "_" + card.getType());
 
+        Log.d("CARD_GEN", "Контейнер карты: " + cardContainer.getTag());
         // Устанавливаем цвет фона контейнера
         int backgroundColor = card.getType().equals("organizmas") ? (prefix.equals("Top") ? 0xFF99FF99 : 0xFF228B22)
                 : (prefix.equals("Top") ? 0xFF99CCFF : 0xFF0000CD);
