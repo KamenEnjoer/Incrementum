@@ -36,6 +36,7 @@ public class CardsGeneration {
             @Override
             public void onFailure(Call call, IOException e) {
                 e.printStackTrace();
+                Log.d("CARD_GEN", "Беда с сервером");
             }
 
             @Override
