@@ -1,5 +1,6 @@
 package com.example.incrementum;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.ClipData;
 import android.content.ClipDescription;
@@ -17,7 +18,9 @@ import com.google.gson.reflect.TypeToken;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -26,7 +29,7 @@ import okhttp3.Request;
 import okhttp3.Response;
 
 public class CardsGeneration {
-    public void fetchCardsFromServer(Context context, Consumer<List<Card>> callback) {
+    public void fetchCardsFromServer(Context context, String requiredType, Consumer<List<Card>> callback) {
         OkHttpClient client = new OkHttpClient();
         Request request = new Request.Builder()
                 .url("http://10.0.2.2:3000/cards")
@@ -46,37 +49,54 @@ public class CardsGeneration {
                     Type listType = new TypeToken<List<Card>>(){}.getType();
                     List<Card> cards = new Gson().fromJson(json, listType);
 
-                    ((Activity) context).runOnUiThread(() -> callback.accept(cards));
+                    List<Card> filteredCards = cards.stream()
+                            .filter(card -> card.getType().equalsIgnoreCase(requiredType))
+                            .collect(Collectors.toList());
+                    java.util.Collections.shuffle(filteredCards);
+                    ((Activity) context).runOnUiThread(() -> callback.accept(filteredCards));
                 }
             }
         });
     }
 
-    public void generateCards(Context context, Runnable onCardsGenerated) {
+    public void cardsGenerationOnStart(Context context, Runnable onCardsGenerated) {
         Activity activity = (Activity) context;
         LinearLayout topCardsContainer = activity.findViewById(R.id.top_cards_container);
         LinearLayout bottomCardsContainer = activity.findViewById(R.id.bottom_cards_container);
 
-        fetchCardsFromServer(context, cards -> {
-            for (Card card : cards) {
-                generateDraggableCards(topCardsContainer, card, context);
-                generateDraggableCards(bottomCardsContainer, card, context);
-            }
-            onCardsGenerated.run();
+        final int totalCardsNeeded = 8; // 3*2 + 1*2 = 8 карт
+        final int[] cardsGenerated = {0}; // Массив для обхода final-проверки в анонимных классах
+
+        Consumer<Void> onCardGenerated = unused -> {
+            cardsGenerated[0]++;
+            if (cardsGenerated[0] == totalCardsNeeded) onCardsGenerated.run();
+        };
+
+        for (int i = 0; i < 3; i++) {
+            oneCardGeneration(context, "organizmas", topCardsContainer, onCardGenerated);
+            oneCardGeneration(context, "organizmas", bottomCardsContainer, onCardGenerated);
+        }
+        oneCardGeneration(context, "oras", topCardsContainer, onCardGenerated);
+        oneCardGeneration(context, "oras", bottomCardsContainer, onCardGenerated);
+    }
+
+
+    public void oneCardGeneration(Context context, String cardType, LinearLayout cardsContainer, Consumer<Void> onComplete) {
+        fetchCardsFromServer(context, cardType, cards -> {
+            generateDraggableCards(cardsContainer, cards.get(0), context);
+            onComplete.accept(null);
         });
     }
 
     public void generateDraggableCards(LinearLayout container, Card card, Context context) {
         String prefix = container.getId() == R.id.top_cards_container ? "Top" : "Bottom";
 
-        // Создаём контейнер для карточки
         LinearLayout cardContainer = new LinearLayout(context);
         cardContainer.setOrientation(LinearLayout.VERTICAL);
         cardContainer.setGravity(android.view.Gravity.CENTER);
         cardContainer.setPadding(16, 16, 16, 16);
         cardContainer.setTag(prefix + "_" + card.getType());
 
-        // Устанавливаем цвет фона контейнера
         int backgroundColor = card.getType().equals("organizmas") ? (prefix.equals("Top") ? 0xFF99FF99 : 0xFF228B22)
                 : (prefix.equals("Top") ? 0xFF99CCFF : 0xFF0000CD);
         cardContainer.setBackgroundColor(backgroundColor);

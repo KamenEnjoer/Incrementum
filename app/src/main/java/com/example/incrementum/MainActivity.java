@@ -5,14 +5,19 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.GridLayout;
+import android.widget.LinearLayout;
 
 import androidx.appcompat.app.AppCompatActivity;
+
+import java.util.function.Consumer;
 
 public class MainActivity extends AppCompatActivity {
     ToggleTurn toggleTurn;
     CardsGeneration cardsGeneration;
     public Button plantsButton;
     public Button weatherButton;
+    LinearLayout topCardsContainer;
+    LinearLayout bottomCardsContainer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,31 +40,22 @@ public class MainActivity extends AppCompatActivity {
         });
 
         GridLayout gameGrid = findViewById(R.id.game_grid);
+        topCardsContainer = findViewById(R.id.top_cards_container);
+        bottomCardsContainer = findViewById(R.id.bottom_cards_container);
+
         GameFieldGeneration.generateGameField(gameGrid, this);
 
         cardsGeneration = new CardsGeneration();
-        cardsGeneration.generateCards(this, () -> {
+        cardsGeneration.cardsGenerationOnStart(this, () -> {
             toggleTurn = new ToggleTurn();
             toggleTurn.initializeTurn(this);
         });
     }
 
     public void addNewCard(String type) {
-        // Создание объекта Card с нужными данными
-        Card newCard = new Card(
-                "Name of the Card",  // Замени на реальное имя
-                "Description of the Card",  // Замени на реальное описание
-                type,  // Тип карты (organizmas/oras)
-                1,  // Уровень
-                3,  // Длительность
-                null  // Может быть null, если поле не задано
-        );
-
-        // Добавление карточки в контейнер
-        cardsGeneration.generateDraggableCards(toggleTurn.currentPlayer(), newCard, this);
-
-        // Переключение хода
-        toggleTurn.switchTurn(this);
+        Consumer<Void> onCardGenerated = unused -> {
+            toggleTurn.switchTurn(this);
+        };
+        cardsGeneration.oneCardGeneration(this, type, toggleTurn.currentPlayer(), onCardGenerated);
     }
-
 }
