@@ -2,8 +2,6 @@ package com.example.incrementum;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.content.ClipData;
-import android.content.ClipDescription;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
@@ -15,7 +13,6 @@ import android.view.ViewGroup;
 import android.widget.GridLayout;
 import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
-
 
 public class GameFieldGeneration {
 
@@ -38,6 +35,9 @@ public class GameFieldGeneration {
             params.setMargins(4, 4, 4, 4);
 
             cell.setLayoutParams(params);
+            char row = (char) ('A' + (i / rowCount));
+            Log.d("AAA", "Char: " + row);
+            cell.setTag(row + String.valueOf((i % columnCount)+1));
             setupDragAndDropForCell(cell, context);
             gridLayout.addView(cell);
         }
@@ -48,11 +48,8 @@ public class GameFieldGeneration {
         cell.setOnClickListener(v -> {
             if (v instanceof TextView) {
                 TextView textViewCell = (TextView) v;
-                String tag = textViewCell.getTag() != null ? textViewCell.getTag().toString() : "Пустая клетка";
-
-                // Создаём и показываем фрагмент
-                InfoFragment infoFragment = InfoFragment.newInstance("Состояние клетки:\n" + tag);
-                infoFragment.show(((AppCompatActivity) context).getSupportFragmentManager(), "cellInfo");
+                CellInfoFragment cellInfoFragment = CellInfoFragment.newInstance(textViewCell.getTag().toString());
+                cellInfoFragment.show(((AppCompatActivity) context).getSupportFragmentManager(), "cellInfo");
             }
         });
 
@@ -76,8 +73,7 @@ public class GameFieldGeneration {
                     if (v instanceof TextView) {
                         TextView textViewCell = (TextView) v;
                         String newTag = textViewCell.getTag() != null ? textViewCell.getTag().toString() : "";
-                        if (!draggedTag.isEmpty()) newTag += draggedTag;
-                        else newTag += "_" + draggedTag;
+                        newTag += "_" + draggedTag;
                         textViewCell.setTag(newTag.trim());
 
                         boolean alreadyHasBlueBorder = textViewCell.getTag() != null && textViewCell.getTag().toString().contains("oras");

@@ -10,14 +10,16 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 
-public class InfoFragment extends DialogFragment {
+import java.util.Objects;
 
-    private static final String ARG_COLOR = "color";
+public class CellInfoFragment extends DialogFragment {
 
-    public static InfoFragment newInstance(String color) {
-        InfoFragment fragment = new InfoFragment();
+    private static final String ARG_CELL = "cellTag";
+
+    public static CellInfoFragment newInstance(String cellTag) {
+        CellInfoFragment fragment = new CellInfoFragment();
         Bundle args = new Bundle();
-        args.putString(ARG_COLOR, color);
+        args.putSerializable(ARG_CELL, cellTag);
         fragment.setArguments(args);
         return fragment;
     }
@@ -26,14 +28,15 @@ public class InfoFragment extends DialogFragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_info, container, false);
+        String cellTag = getArguments().getSerializable(ARG_CELL).toString();
 
         TextView infoText = view.findViewById(R.id.description_text);
+        TextView titleText = view.findViewById(R.id.title_text);
 
-        if (getArguments() != null) {
-            infoText.setText(getArguments().getString(ARG_COLOR, "Unknown"));
-        }
+        titleText.setText(cellTag.substring(0, 2));
+        infoText.setText("Состояние клетки:\n" + cellTag);
 
-        view.setOnClickListener(v -> dismiss()); // Закрытие по нажатию
+        view.setOnClickListener(v -> dismiss());
         return view;
     }
 }

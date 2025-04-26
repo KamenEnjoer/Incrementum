@@ -1,6 +1,8 @@
 package com.example.incrementum;
 
-public class Card {
+import java.io.Serializable;
+
+public class Card implements Serializable {
     private String _id;
     private String name;
     private String description;

@@ -1,6 +1,5 @@
 package com.example.incrementum;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.ClipData;
 import android.content.ClipDescription;
@@ -18,7 +17,6 @@ import com.google.gson.reflect.TypeToken;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.List;
-import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -123,9 +121,8 @@ public class CardsGeneration {
 
         //ФРАГМЕНТ ИНФОРМАЦИИ
         cardContainer.setOnClickListener(v -> {
-            String color = card.getType().equals("organizmas") ? "Organizmas" : "Oras";
-            InfoFragment infoFragment = InfoFragment.newInstance("Цвет карточки: " + color);
-            infoFragment.show(((AppCompatActivity) context).getSupportFragmentManager(), "cardInfo");
+            CardInfoFragment cardInfoFragment = CardInfoFragment.newInstance(card);
+            cardInfoFragment.show(((AppCompatActivity) context).getSupportFragmentManager(), "cardInfo");
         });
 
         cardContainer.setOnLongClickListener(v -> {
@@ -137,8 +134,6 @@ public class CardsGeneration {
             v.startDragAndDrop(data, shadowBuilder, v, 0);
             return true;
         });
-
         container.addView(cardContainer);
     }
-
 }
