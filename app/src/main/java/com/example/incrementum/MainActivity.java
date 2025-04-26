@@ -1,6 +1,7 @@
 package com.example.incrementum;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.GridLayout;
@@ -38,6 +39,7 @@ public class MainActivity extends AppCompatActivity {
 
         cardsGeneration = new CardsGeneration();
         cardsGeneration.generateCards(this);
+        Log.d("ОСНОВНОЕ", "Карты сгенерированны.");
         toggleTurn = new ToggleTurn();
         toggleTurn.initializeTurn(this);
     }

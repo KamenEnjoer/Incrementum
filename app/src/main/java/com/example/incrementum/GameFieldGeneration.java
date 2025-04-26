@@ -8,6 +8,7 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
+import android.util.Log;
 import android.view.DragEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -56,19 +57,23 @@ public class GameFieldGeneration {
         });
 
         cell.setOnDragListener((v, event) -> {
+            Log.d("ПОЛЕ", "Наведение");
             switch (event.getAction()) {
                 case DragEvent.ACTION_DRAG_STARTED:
                     return event.getClipDescription().hasMimeType(ClipDescription.MIMETYPE_TEXT_PLAIN);
 
                 case DragEvent.ACTION_DRAG_ENTERED:
+                    Log.d("ПОЛЕ", "Пришёл");
                     v.setAlpha(0.5f);
                     return true;
 
                 case DragEvent.ACTION_DRAG_EXITED:
+                    Log.d("ПОЛЕ", "Ушёл");
                     v.setAlpha(1.0f);
                     return true;
 
                 case DragEvent.ACTION_DROP:
+                    Log.d("ПОЛЕ", "Кинул");
                     ClipData.Item item = event.getClipData().getItemAt(0);
                     String draggedTag = item.getText().toString();
 
