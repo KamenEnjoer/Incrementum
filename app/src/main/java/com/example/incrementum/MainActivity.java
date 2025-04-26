@@ -38,10 +38,10 @@ public class MainActivity extends AppCompatActivity {
         GameFieldGeneration.generateGameField(gameGrid, this);
 
         cardsGeneration = new CardsGeneration();
-        cardsGeneration.generateCards(this);
-        Log.d("ОСНОВНОЕ", "Карты сгенерированны.");
-        toggleTurn = new ToggleTurn();
-        toggleTurn.initializeTurn(this);
+        cardsGeneration.generateCards(this, () -> {
+            toggleTurn = new ToggleTurn();
+            toggleTurn.initializeTurn(this);
+        });
     }
 
     public void addNewCard(String type) {

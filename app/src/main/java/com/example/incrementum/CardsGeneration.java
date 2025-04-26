@@ -36,7 +36,7 @@ public class CardsGeneration {
             @Override
             public void onFailure(Call call, IOException e) {
                 e.printStackTrace();
-                Log.d("КАРТЫ", "Проблема с сервером.");
+                Log.d("SERVER", "Server problem.");
             }
 
             @Override
@@ -52,7 +52,7 @@ public class CardsGeneration {
         });
     }
 
-    public void generateCards(Context context) {
+    public void generateCards(Context context, Runnable onCardsGenerated) {
         Activity activity = (Activity) context;
         LinearLayout topCardsContainer = activity.findViewById(R.id.top_cards_container);
         LinearLayout bottomCardsContainer = activity.findViewById(R.id.bottom_cards_container);
@@ -62,6 +62,7 @@ public class CardsGeneration {
                 generateDraggableCards(topCardsContainer, card, context);
                 generateDraggableCards(bottomCardsContainer, card, context);
             }
+            onCardsGenerated.run();
         });
     }
 
@@ -100,6 +101,7 @@ public class CardsGeneration {
         params.setMargins(8, 8, 8, 8);
         cardContainer.setLayoutParams(params);
 
+        //ФРАГМЕНТ ИНФОРМАЦИИ
         cardContainer.setOnClickListener(v -> {
             String color = card.getType().equals("organizmas") ? "Organizmas" : "Oras";
             InfoFragment infoFragment = InfoFragment.newInstance("Цвет карточки: " + color);

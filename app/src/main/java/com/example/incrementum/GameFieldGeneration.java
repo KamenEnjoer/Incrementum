@@ -57,40 +57,34 @@ public class GameFieldGeneration {
         });
 
         cell.setOnDragListener((v, event) -> {
-            Log.d("ПОЛЕ", "Наведение");
             switch (event.getAction()) {
                 case DragEvent.ACTION_DRAG_STARTED:
-                    return event.getClipDescription().hasMimeType(ClipDescription.MIMETYPE_TEXT_PLAIN);
+                    return true;
 
                 case DragEvent.ACTION_DRAG_ENTERED:
-                    Log.d("ПОЛЕ", "Пришёл");
                     v.setAlpha(0.5f);
                     return true;
 
                 case DragEvent.ACTION_DRAG_EXITED:
-                    Log.d("ПОЛЕ", "Ушёл");
                     v.setAlpha(1.0f);
                     return true;
 
                 case DragEvent.ACTION_DROP:
-                    Log.d("ПОЛЕ", "Кинул");
-                    ClipData.Item item = event.getClipData().getItemAt(0);
-                    String draggedTag = item.getText().toString();
-
+                    String draggedTag = event.getClipData().getItemAt(0).getText().toString();
+                    draggedTag = draggedTag.substring(draggedTag.indexOf("_") + 1);
+                    boolean a = v instanceof TextView;
                     if (v instanceof TextView) {
                         TextView textViewCell = (TextView) v;
-
                         String newTag = textViewCell.getTag() != null ? textViewCell.getTag().toString() : "";
-                        if (draggedTag.contains("green") && !newTag.contains("green")) newTag += " green";
-                        else if (draggedTag.contains("blue") && !newTag.contains("blue")) newTag += " blue";
-                        else return true;
+                        if (!draggedTag.isEmpty()) newTag += draggedTag;
+                        else newTag += "_" + draggedTag;
                         textViewCell.setTag(newTag.trim());
 
-                        boolean alreadyHasBlueBorder = textViewCell.getTag() != null && textViewCell.getTag().toString().contains("blue");
+                        boolean alreadyHasBlueBorder = textViewCell.getTag() != null && textViewCell.getTag().toString().contains("oras");
                         Drawable[] layers = new Drawable[]{
                                 textViewCell.getBackground() != null ? textViewCell.getBackground() : context.getDrawable(R.drawable.card_background),
-                                draggedTag.contains("green") ? context.getDrawable(R.drawable.green_background) : new ColorDrawable(Color.TRANSPARENT),
-                                (draggedTag.contains("blue") || alreadyHasBlueBorder) ? context.getDrawable(R.drawable.blue_border) : new ColorDrawable(Color.TRANSPARENT)
+                                draggedTag.contains("organizmas") ? context.getDrawable(R.drawable.green_background) : new ColorDrawable(Color.TRANSPARENT),
+                                (draggedTag.contains("oras") || alreadyHasBlueBorder) ? context.getDrawable(R.drawable.blue_border) : new ColorDrawable(Color.TRANSPARENT)
                         };
                         LayerDrawable layerDrawable = new LayerDrawable(layers);
                         textViewCell.setBackground(layerDrawable);

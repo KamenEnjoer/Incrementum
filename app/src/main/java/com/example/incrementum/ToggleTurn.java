@@ -17,13 +17,9 @@ public class ToggleTurn {
         Activity activity = (Activity) context;
         topCardsContainer = activity.findViewById(R.id.top_cards_container);
         bottomCardsContainer = activity.findViewById(R.id.bottom_cards_container);
-        Log.d("ОСНОВНОЕ", "Ход переключён.1");
 
         toggleTurn(topCardsContainer, false);
         toggleTurn(bottomCardsContainer, true);
-        Log.d("Проверка верхних долбаёбов", topCardsContainer.getChildAt(0).getTag().toString());
-        //Log.d("Проверка нижних долбаёбов", bottomCardsContainer.getChildAt(1).getTag().toString());
-        Log.d("ОСНОВНОЕ", "Ход переключён.2");
     }
 
     public void switchTurn(Context context) {

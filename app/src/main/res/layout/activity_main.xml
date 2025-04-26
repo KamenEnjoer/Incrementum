@@ -29,7 +29,11 @@
         android:layout_marginBottom="16dp"
         android:rowCount="6"
         android:columnCount="6"
-        android:background="#E0E0E0">
+        android:background="#E0E0E0"
+
+        android:clipChildren="false"
+        android:clipToPadding="false"
+        >
     </GridLayout>
 
     <LinearLayout
