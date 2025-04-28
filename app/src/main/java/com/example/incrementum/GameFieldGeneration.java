@@ -68,54 +68,52 @@ public class GameFieldGeneration {
                     if (v instanceof TextView) {
                         String draggedTag = event.getClipData().getItemAt(0).getText().toString();
                         draggedTag = draggedTag.substring(draggedTag.indexOf("*") + 1);
-                        ServerLogic serverLogic = new ServerLogic();
-                        serverLogic.fetchCardsById(context, draggedTag, card -> {
-                            int areaSize = 1;
-                            if (card.getType().equals("oras")) areaSize = card.getSquare();
-                            int halfArea = areaSize / 2;
+                        Card card = CardsRepository.getInstance().getCardById(draggedTag);
+                        int areaSize = 1;
+                        if (card.getType().equals("oras")) areaSize = card.getSquare();
+                        int halfArea = areaSize / 2;
 
-                            GridLayout gridLayout = (GridLayout) v.getParent();
-                            int row = v.getTag().toString().charAt(0) - 'A';
-                            int column = Character.getNumericValue(v.getTag().toString().charAt(1)) - 1;
+                        GridLayout gridLayout = (GridLayout) v.getParent();
+                        int row = v.getTag().toString().charAt(0) - 'A';
+                        int column = Character.getNumericValue(v.getTag().toString().charAt(1)) - 1;
 
-                            int startRow, endRow, startCol, endCol;
-                            if (areaSize % 2 == 0) {
-                                startRow = row;
-                                startCol = column;
-                                endRow = row + areaSize - 1;
-                                endCol = column + areaSize - 1;
-                            } else {
-                                startRow = row - halfArea;
-                                startCol = column - halfArea;
-                                endRow = row + halfArea;
-                                endCol = column + halfArea;
-                            }
+                        int startRow, endRow, startCol, endCol;
+                        if (areaSize % 2 == 0) {
+                            startRow = row;
+                            startCol = column;
+                            endRow = row + areaSize - 1;
+                            endCol = column + areaSize - 1;
+                        } else {
+                            startRow = row - halfArea;
+                            startCol = column - halfArea;
+                            endRow = row + halfArea;
+                            endCol = column + halfArea;
+                        }
 
-                            for (int r = startRow; r <= endRow; r++) {
-                                for (int c = startCol; c <= endCol; c++) {
-                                    if (r >= 0 && r < gridLayout.getRowCount() && c >= 0 && c < gridLayout.getColumnCount()) {
-                                        int cellIndex = r * gridLayout.getColumnCount() + c;
-                                        View view = gridLayout.getChildAt(cellIndex);
-                                        if (view instanceof TextView) {
-                                            TextView neighborCell = (TextView) view;
+                        for (int r = startRow; r <= endRow; r++) {
+                            for (int c = startCol; c <= endCol; c++) {
+                                if (r >= 0 && r < gridLayout.getRowCount() && c >= 0 && c < gridLayout.getColumnCount()) {
+                                    int cellIndex = r * gridLayout.getColumnCount() + c;
+                                    View view = gridLayout.getChildAt(cellIndex);
+                                    if (view instanceof TextView) {
+                                        TextView neighborCell = (TextView) view;
 
-                                            String newTag = neighborCell.getTag().toString();
-                                            newTag += "_" + card.getType() + "*" + card.getId();
-                                            neighborCell.setTag(newTag.trim());
+                                        String newTag = neighborCell.getTag().toString();
+                                        newTag += "_" + card.getType() + "*" + card.getId();
+                                        neighborCell.setTag(newTag.trim());
 
-                                            boolean alreadyHasBlueBorder = neighborCell.getTag() != null && neighborCell.getTag().toString().contains("oras");
-                                            Drawable[] layers = new Drawable[]{
-                                                    neighborCell.getBackground() != null ? neighborCell.getBackground() : context.getDrawable(R.drawable.card_background),
-                                                    card.getType().equals("organizmas") ? context.getDrawable(R.drawable.green_background) : new ColorDrawable(Color.TRANSPARENT),
-                                                    (card.getType().equals("oras") || alreadyHasBlueBorder) ? context.getDrawable(R.drawable.blue_border) : new ColorDrawable(Color.TRANSPARENT)
-                                            };
-                                            LayerDrawable layerDrawable = new LayerDrawable(layers);
-                                            neighborCell.setBackground(layerDrawable);
-                                        }
+                                        boolean alreadyHasBlueBorder = neighborCell.getTag() != null && neighborCell.getTag().toString().contains("oras");
+                                        Drawable[] layers = new Drawable[]{
+                                                neighborCell.getBackground() != null ? neighborCell.getBackground() : context.getDrawable(R.drawable.card_background),
+                                                card.getType().equals("organizmas") ? context.getDrawable(R.drawable.green_background) : new ColorDrawable(Color.TRANSPARENT),
+                                                (card.getType().equals("oras") || alreadyHasBlueBorder) ? context.getDrawable(R.drawable.blue_border) : new ColorDrawable(Color.TRANSPARENT)
+                                        };
+                                        LayerDrawable layerDrawable = new LayerDrawable(layers);
+                                        neighborCell.setBackground(layerDrawable);
                                     }
                                 }
                             }
-                        });
+                        }
 
                         View draggedView = (View) event.getLocalState();
                         ViewGroup parent = (ViewGroup) draggedView.getParent();

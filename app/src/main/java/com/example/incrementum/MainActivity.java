@@ -24,38 +24,40 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        plantsButton = findViewById(R.id.plants_button);
-        plantsButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                addNewCard("organizmas");
-            }
-        });
-        weatherButton = findViewById(R.id.weather_button);
-        weatherButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                addNewCard("oras");
-            }
-        });
+        CardsRepository.getInstance().fetchCards(this,
+                () -> {
+                    plantsButton = findViewById(R.id.plants_button);
+                    plantsButton.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            addNewCard("organizmas");
+                        }
+                    });
+                    weatherButton = findViewById(R.id.weather_button);
+                    weatherButton.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            addNewCard("oras");
+                        }
+                    });
 
-        GridLayout gameGrid = findViewById(R.id.game_grid);
-        topCardsContainer = findViewById(R.id.top_cards_container);
-        bottomCardsContainer = findViewById(R.id.bottom_cards_container);
+                    GridLayout gameGrid = findViewById(R.id.game_grid);
+                    topCardsContainer = findViewById(R.id.top_cards_container);
+                    bottomCardsContainer = findViewById(R.id.bottom_cards_container);
 
-        GameFieldGeneration.generateGameField(gameGrid, this);
+                    GameFieldGeneration.generateGameField(gameGrid, this);
 
-        cardsGeneration = new CardsGeneration();
-        cardsGeneration.cardsGenerationOnStart(this, () -> {
-            toggleTurn = new ToggleTurn();
-            toggleTurn.initializeTurn(this);
-        });
+                    cardsGeneration = new CardsGeneration();
+                    cardsGeneration.cardsGenerationOnStart(this);
+                    toggleTurn = new ToggleTurn();
+                    toggleTurn.initializeTurn(this);},
+                (exception) -> {Log.e("SERVER", "Error of cards loading: " + exception.getMessage());});
+
+
     }
 
     public void addNewCard(String type) {
-        Consumer<Void> onCardGenerated = unused -> {
-            toggleTurn.switchTurn(this);
-        };
-        cardsGeneration.oneCardGeneration(this, type, toggleTurn.currentPlayer(), onCardGenerated);
+        cardsGeneration.oneCardGeneration(this, type, toggleTurn.currentPlayer());
+        toggleTurn.switchTurn(this);
     }
 }

@@ -13,34 +13,23 @@ import androidx.appcompat.app.AppCompatActivity;
 import java.util.function.Consumer;
 
 public class CardsGeneration {
-    public void cardsGenerationOnStart(Context context, Runnable onCardsGenerated) {
+    public void cardsGenerationOnStart(Context context) {
         Activity activity = (Activity) context;
         LinearLayout topCardsContainer = activity.findViewById(R.id.top_cards_container);
         LinearLayout bottomCardsContainer = activity.findViewById(R.id.bottom_cards_container);
 
-        final int totalCardsNeeded = 8;
-        final int[] cardsGenerated = {0};
-
-        Consumer<Void> onCardGenerated = unused -> {
-            cardsGenerated[0]++;
-            if (cardsGenerated[0] == totalCardsNeeded) onCardsGenerated.run();
-        };
-
         for (int i = 0; i < 3; i++) {
-            oneCardGeneration(context, "organizmas", topCardsContainer, onCardGenerated);
-            oneCardGeneration(context, "organizmas", bottomCardsContainer, onCardGenerated);
+            oneCardGeneration(context, "organizmas", topCardsContainer);
+            oneCardGeneration(context, "organizmas", bottomCardsContainer);
         }
-        oneCardGeneration(context, "oras", topCardsContainer, onCardGenerated);
-        oneCardGeneration(context, "oras", bottomCardsContainer, onCardGenerated);
+        oneCardGeneration(context, "oras", topCardsContainer);
+        oneCardGeneration(context, "oras", bottomCardsContainer);
     }
 
 
-    public void oneCardGeneration(Context context, String cardType, LinearLayout cardsContainer, Consumer<Void> onComplete) {
-        ServerLogic serverLogic = new ServerLogic();
-        serverLogic.fetchCardsByType(context, cardType, cards -> {
-            generateDraggableCards(cardsContainer, cards.get(0), context);
-            onComplete.accept(null);
-        });
+    public void oneCardGeneration(Context context, String cardType, LinearLayout cardsContainer) {
+        Card card = CardsRepository.getInstance().getCardByType(cardType).get(0);
+        generateDraggableCards(cardsContainer, card, context);
     }
 
     public void generateDraggableCards(LinearLayout container, Card card, Context context) {
