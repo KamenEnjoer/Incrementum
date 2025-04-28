@@ -6,7 +6,6 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
-import android.util.Log;
 import android.view.DragEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,7 +14,6 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 
 public class GameFieldGeneration {
-
     static public void generateGameField(GridLayout gridLayout, Context context) {
         int rowCount = 6;
         int columnCount = 6;
@@ -36,7 +34,6 @@ public class GameFieldGeneration {
 
             cell.setLayoutParams(params);
             char row = (char) ('A' + (i / rowCount));
-            Log.d("AAA", "Char: " + row);
             cell.setTag(row + String.valueOf((i % columnCount)+1));
             setupDragAndDropForCell(cell, context);
             gridLayout.addView(cell);
@@ -63,27 +60,62 @@ public class GameFieldGeneration {
                     return true;
 
                 case DragEvent.ACTION_DRAG_EXITED:
+                case DragEvent.ACTION_DRAG_ENDED:
                     v.setAlpha(1.0f);
                     return true;
 
                 case DragEvent.ACTION_DROP:
-                    String draggedTag = event.getClipData().getItemAt(0).getText().toString();
-                    draggedTag = draggedTag.substring(draggedTag.indexOf("_") + 1);
-                    boolean a = v instanceof TextView;
                     if (v instanceof TextView) {
-                        TextView textViewCell = (TextView) v;
-                        String newTag = textViewCell.getTag() != null ? textViewCell.getTag().toString() : "";
-                        newTag += "_" + draggedTag;
-                        textViewCell.setTag(newTag.trim());
+                        String draggedTag = event.getClipData().getItemAt(0).getText().toString();
+                        draggedTag = draggedTag.substring(draggedTag.indexOf("*") + 1);
+                        ServerLogic serverLogic = new ServerLogic();
+                        serverLogic.fetchCardsById(context, draggedTag, card -> {
+                            int areaSize = 1;
+                            if (card.getType().equals("oras")) areaSize = card.getSquare();
+                            int halfArea = areaSize / 2;
 
-                        boolean alreadyHasBlueBorder = textViewCell.getTag() != null && textViewCell.getTag().toString().contains("oras");
-                        Drawable[] layers = new Drawable[]{
-                                textViewCell.getBackground() != null ? textViewCell.getBackground() : context.getDrawable(R.drawable.card_background),
-                                draggedTag.contains("organizmas") ? context.getDrawable(R.drawable.green_background) : new ColorDrawable(Color.TRANSPARENT),
-                                (draggedTag.contains("oras") || alreadyHasBlueBorder) ? context.getDrawable(R.drawable.blue_border) : new ColorDrawable(Color.TRANSPARENT)
-                        };
-                        LayerDrawable layerDrawable = new LayerDrawable(layers);
-                        textViewCell.setBackground(layerDrawable);
+                            GridLayout gridLayout = (GridLayout) v.getParent();
+                            int row = v.getTag().toString().charAt(0) - 'A';
+                            int column = Character.getNumericValue(v.getTag().toString().charAt(1)) - 1;
+
+                            int startRow, endRow, startCol, endCol;
+                            if (areaSize % 2 == 0) {
+                                startRow = row;
+                                startCol = column;
+                                endRow = row + areaSize - 1;
+                                endCol = column + areaSize - 1;
+                            } else {
+                                startRow = row - halfArea;
+                                startCol = column - halfArea;
+                                endRow = row + halfArea;
+                                endCol = column + halfArea;
+                            }
+
+                            for (int r = startRow; r <= endRow; r++) {
+                                for (int c = startCol; c <= endCol; c++) {
+                                    if (r >= 0 && r < gridLayout.getRowCount() && c >= 0 && c < gridLayout.getColumnCount()) {
+                                        int cellIndex = r * gridLayout.getColumnCount() + c;
+                                        View view = gridLayout.getChildAt(cellIndex);
+                                        if (view instanceof TextView) {
+                                            TextView neighborCell = (TextView) view;
+
+                                            String newTag = neighborCell.getTag().toString();
+                                            newTag += "_" + card.getType() + "*" + card.getId();
+                                            neighborCell.setTag(newTag.trim());
+
+                                            boolean alreadyHasBlueBorder = neighborCell.getTag() != null && neighborCell.getTag().toString().contains("oras");
+                                            Drawable[] layers = new Drawable[]{
+                                                    neighborCell.getBackground() != null ? neighborCell.getBackground() : context.getDrawable(R.drawable.card_background),
+                                                    card.getType().equals("organizmas") ? context.getDrawable(R.drawable.green_background) : new ColorDrawable(Color.TRANSPARENT),
+                                                    (card.getType().equals("oras") || alreadyHasBlueBorder) ? context.getDrawable(R.drawable.blue_border) : new ColorDrawable(Color.TRANSPARENT)
+                                            };
+                                            LayerDrawable layerDrawable = new LayerDrawable(layers);
+                                            neighborCell.setBackground(layerDrawable);
+                                        }
+                                    }
+                                }
+                            }
+                        });
 
                         View draggedView = (View) event.getLocalState();
                         ViewGroup parent = (ViewGroup) draggedView.getParent();
@@ -94,10 +126,6 @@ public class GameFieldGeneration {
                         ToggleTurn toggleTurn = new ToggleTurn();
                         toggleTurn.switchTurn(v.getContext());
                     }
-                    return true;
-
-                case DragEvent.ACTION_DRAG_ENDED:
-                    v.setAlpha(1.0f);
                     return true;
 
                 default:
