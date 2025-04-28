@@ -6,6 +6,7 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
+import android.util.Log;
 import android.view.DragEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -69,6 +70,9 @@ public class GameFieldGeneration {
                         String draggedTag = event.getClipData().getItemAt(0).getText().toString();
                         draggedTag = draggedTag.substring(draggedTag.indexOf("*") + 1);
                         Card card = CardsRepository.getInstance().getCardById(draggedTag);
+
+                        if (v.getTag().toString().contains("organizmas") && card.getType().equals("organizmas")) return true;
+
                         int areaSize = 1;
                         if (card.getType().equals("oras")) areaSize = card.getSquare();
                         int halfArea = areaSize / 2;

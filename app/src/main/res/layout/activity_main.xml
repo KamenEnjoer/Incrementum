@@ -51,17 +51,17 @@
             android:layout_width="150dp"
             android:layout_height="wrap_content"
             android:backgroundTint="@android:color/holo_green_light"
-            android:text="PLANTS"
+            android:text="NAUJA ORGANIZMO KORTELĖ"
             android:textColor="#FFFFFF" />
 
         <Button
             android:id="@+id/weather_button"
             android:layout_width="150dp"
-            android:layout_height="wrap_content"
+            android:layout_height="72dp"
+            android:layout_marginStart="8dp"
             android:backgroundTint="@android:color/holo_blue_light"
-            android:text="WEATHER"
-            android:textColor="#FFFFFF"
-            android:layout_marginStart="8dp" />
+            android:text="NAUJA ORO KORTELĖ"
+            android:textColor="#FFFFFF" />
     </LinearLayout>
 
     <ProgressBar

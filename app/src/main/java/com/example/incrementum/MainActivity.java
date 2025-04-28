@@ -9,8 +9,6 @@ import android.widget.LinearLayout;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import java.util.function.Consumer;
-
 public class MainActivity extends AppCompatActivity {
     ToggleTurn toggleTurn;
     CardsGeneration cardsGeneration;

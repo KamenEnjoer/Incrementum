@@ -9,9 +9,10 @@ public class Card implements Serializable {
     private String type;
     private int level;
     private int duration;
-    private Integer square;
+    private int square;
+    private String imageName;
 
-    public Card(String name, String description, String type, int level, int duration, Integer square) {
+    public Card(String name, String description, String type, int level, int duration, int square) {
         this.name = name;
         this.description = description;
         this.type = type;
@@ -26,5 +27,10 @@ public class Card implements Serializable {
     public String getType() {return type;}
     public int getLevel() {return level;}
     public int getDuration() {return duration;}
-    public Integer getSquare() {return square;}
+    public int getSquare() {return square;}
+    public String getImageName(){
+        if (type.equals("oras")) imageName = "w0_" + _id;
+        else imageName = "p0_" + _id;
+        return imageName;
+    }
 }

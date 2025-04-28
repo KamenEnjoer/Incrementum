@@ -4,6 +4,8 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -32,6 +34,10 @@ public class CardInfoFragment extends DialogFragment {
 
         TextView infoText = view.findViewById(R.id.description_text);
         TextView titleText = view.findViewById(R.id.title_text);
+        ImageView imageView = view.findViewById(R.id.info_image);
+
+        int imageResId = requireContext().getResources().getIdentifier(card.getImageName(), "drawable", requireContext().getPackageName());
+        if (imageResId != 0) imageView.setImageResource(imageResId);
 
         if (getArguments() != null) {
             titleText.setText(card.getName());

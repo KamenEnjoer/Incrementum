@@ -46,15 +46,14 @@ public class CardsGeneration {
                 : (prefix.equals("Top") ? 0xFF99CCFF : 0xFF0000CD);
         cardContainer.setBackgroundColor(backgroundColor);
 
-        // Создаём картинку (например, заглушка)
         ImageView imageView = new ImageView(context);
-        imageView.setLayoutParams(new LinearLayout.LayoutParams(100, 100));
+        imageView.setLayoutParams(new LinearLayout.LayoutParams(200, 200));
         imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
-        // Тут можно вставить реальное изображение из ресурсов или URL
+        int imageResId = context.getResources().getIdentifier(card.getImageName(), "drawable", context.getPackageName());
+        if (imageResId != 0) imageView.setImageResource(imageResId);
 
-        // Создаём текст (имя карточки)
         TextView textView = new TextView(context);
-        textView.setText(card.getName());  // Используем имя карточки из объекта Card
+        textView.setText(card.getName());
         textView.setGravity(android.view.Gravity.CENTER);
         textView.setTextSize(16);
         textView.setPadding(0, 8, 0, 0);
