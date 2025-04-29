@@ -5,12 +5,14 @@ import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.LayerDrawable;
 import android.util.Log;
 import android.view.DragEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.GridLayout;
+import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -22,9 +24,10 @@ public class GameFieldGeneration {
         gridLayout.setColumnCount(columnCount);
         int totalCells = rowCount * columnCount;
         for (int i = 0; i < totalCells; i++) {
-            TextView cell = new TextView(context);
+            ImageView cell = new ImageView(context);
             cell.setBackgroundResource(R.drawable.card_background);
-            cell.setGravity(android.view.Gravity.CENTER);
+            cell.setClipToOutline(true);
+            cell.setScaleType(ImageView.ScaleType.CENTER_CROP);
 
             GridLayout.LayoutParams params = new GridLayout.LayoutParams();
             params.width = 0;
@@ -44,8 +47,8 @@ public class GameFieldGeneration {
     @SuppressLint("UseCompatLoadingForDrawables")
     private static void setupDragAndDropForCell(View cell, Context context) {
         cell.setOnClickListener(v -> {
-            if (v instanceof TextView) {
-                TextView textViewCell = (TextView) v;
+            if (v instanceof ImageView) {
+                ImageView textViewCell = (ImageView) v;
                 CellInfoFragment cellInfoFragment = CellInfoFragment.newInstance(textViewCell.getTag().toString());
                 cellInfoFragment.show(((AppCompatActivity) context).getSupportFragmentManager(), "cellInfo");
             }
@@ -66,7 +69,7 @@ public class GameFieldGeneration {
                     return true;
 
                 case DragEvent.ACTION_DROP:
-                    if (v instanceof TextView) {
+                    if (v instanceof ImageView) {
                         String draggedTag = event.getClipData().getItemAt(0).getText().toString();
                         draggedTag = draggedTag.substring(draggedTag.indexOf("*") + 1);
                         Card card = CardsRepository.getInstance().getCardById(draggedTag);
@@ -99,18 +102,36 @@ public class GameFieldGeneration {
                                 if (r >= 0 && r < gridLayout.getRowCount() && c >= 0 && c < gridLayout.getColumnCount()) {
                                     int cellIndex = r * gridLayout.getColumnCount() + c;
                                     View view = gridLayout.getChildAt(cellIndex);
-                                    if (view instanceof TextView) {
-                                        TextView neighborCell = (TextView) view;
+                                    if (view instanceof ImageView) {
+                                        ImageView neighborCell = (ImageView) view;
 
                                         String newTag = neighborCell.getTag().toString();
+                                        if (card.getType().equals("oras") && neighborCell.getTag().toString().contains("oras")) {
+                                            newTag = newTag.replaceFirst("_oras\\*[a-fA-F0-9]{24}", "");
+                                        }
                                         newTag += "_" + card.getType() + "*" + card.getId();
                                         neighborCell.setTag(newTag.trim());
 
                                         boolean alreadyHasBlueBorder = neighborCell.getTag() != null && neighborCell.getTag().toString().contains("oras");
+                                        int imageResId = context.getResources().getIdentifier(card.getImageName(), "drawable", context.getPackageName());
+
+                                        int borderColor = Color.TRANSPARENT; // по умолчанию
+
+                                        if (card.getName().equals("Lietus")) {
+                                            borderColor = Color.rgb(60 - card.getLevel()*20, 210 - card.getLevel()*20, 255);
+                                        } else if (card.getName().equals("Saulė")) {
+                                            borderColor = Color.rgb(255, 255 - card.getLevel()*50, 60 - card.getLevel()*20);
+                                        }
+                                        GradientDrawable borderDrawable = new GradientDrawable();
+                                        borderDrawable.setShape(GradientDrawable.RECTANGLE);
+                                        borderDrawable.setStroke(8, borderColor);
+                                        borderDrawable.setColor(Color.TRANSPARENT);
+                                        borderDrawable.setCornerRadius(5);
+
                                         Drawable[] layers = new Drawable[]{
                                                 neighborCell.getBackground() != null ? neighborCell.getBackground() : context.getDrawable(R.drawable.card_background),
-                                                card.getType().equals("organizmas") ? context.getDrawable(R.drawable.green_background) : new ColorDrawable(Color.TRANSPARENT),
-                                                (card.getType().equals("oras") || alreadyHasBlueBorder) ? context.getDrawable(R.drawable.blue_border) : new ColorDrawable(Color.TRANSPARENT)
+                                                card.getType().equals("organizmas") ? context.getDrawable(imageResId) : new ColorDrawable(Color.TRANSPARENT),
+                                                (card.getType().equals("oras") || alreadyHasBlueBorder) ? borderDrawable : new ColorDrawable(Color.TRANSPARENT)
                                         };
                                         LayerDrawable layerDrawable = new LayerDrawable(layers);
                                         neighborCell.setBackground(layerDrawable);
