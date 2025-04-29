@@ -116,7 +116,6 @@ public class GameFieldGeneration {
                                         int imageResId = context.getResources().getIdentifier(card.getImageName(), "drawable", context.getPackageName());
 
                                         int borderColor = Color.TRANSPARENT; // по умолчанию
-
                                         if (card.getName().equals("Lietus")) {
                                             borderColor = Color.rgb(60 - card.getLevel()*20, 210 - card.getLevel()*20, 255);
                                         } else if (card.getName().equals("Saulė")) {
