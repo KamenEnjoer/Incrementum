@@ -48,10 +48,17 @@ public class MainActivity extends AppCompatActivity {
                     cardsGeneration = new CardsGeneration();
                     cardsGeneration.cardsGenerationOnStart(this);
                     toggleTurn = new ToggleTurn();
-                    toggleTurn.initializeTurn(this);},
-                (exception) -> {Log.e("SERVER", "Error of cards loading: " + exception.getMessage());});
+                    toggleTurn.initializeTurn(this);
+                },
+                (exception) -> {Log.e("SERVER", "Error of cards loading: " + exception.getMessage());}
+        );
 
-
+        GameStateRepository.getInstance().fetchGameState(this,
+                () -> {
+                    GameState gameState = GameStateRepository.getInstance().getFirstGameState();
+                },
+                (exception) -> {Log.e("SERVER", "Error of GameState loading: " + exception.getMessage());}
+        );
     }
 
     public void addNewCard(String type) {
