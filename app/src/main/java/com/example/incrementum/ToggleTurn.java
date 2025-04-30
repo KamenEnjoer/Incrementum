@@ -34,6 +34,7 @@ public class ToggleTurn {
 
         toggleTurn(topCardsContainer, !isBottomTurn);
         toggleTurn(bottomCardsContainer, isBottomTurn);
+        PlayersRepository.getInstance().switchTurn();
     }
 
     private void toggleTurn(LinearLayout cardsContainer, boolean isTurn) {
@@ -44,7 +45,7 @@ public class ToggleTurn {
         }
     }
 
-    public LinearLayout currentPlayer(){
+    public LinearLayout currentPlayerContainer(){
         if (isBottomTurn) return bottomCardsContainer;
         else return topCardsContainer;
     }

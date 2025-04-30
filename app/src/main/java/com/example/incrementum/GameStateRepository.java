@@ -8,6 +8,7 @@ import okhttp3.*;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -58,6 +59,41 @@ public class GameStateRepository {
             }
         });
     }
+
+    public void createGameState(Context context, GameState newGameState, Runnable onSuccess, Consumer<Exception> onError) {
+        OkHttpClient client = new OkHttpClient();
+        Gson gson = new Gson();
+        String json = gson.toJson(newGameState);
+        Log.d("ABOBA", "Json: " + json);
+
+        RequestBody body = RequestBody.create(json, MediaType.parse("application/json"));
+        Request request = new Request.Builder()
+                .url("http://10.0.2.2:3000/gamestates")
+                .post(body)
+                .build();
+
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                Log.e("SERVER", "Failed to create GameState in GameStateRepository: " + e.getMessage());
+                ((android.app.Activity) context).runOnUiThread(() -> onError.accept(e));
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                if (response.isSuccessful()) {
+                    if (gameStates == null) gameStates = new ArrayList<>();
+                    gameStates.add(newGameState);
+                    ((android.app.Activity) context).runOnUiThread(onSuccess);
+                } else {
+                    ((android.app.Activity) context).runOnUiThread(() ->
+                            onError.accept(new IOException("Server returned error code: " + response.code()))
+                    );
+                }
+            }
+        });
+    }
+
 
     public GameState getFirstGameState() {
         return (gameStates != null && !gameStates.isEmpty()) ? gameStates.get(0) : null;

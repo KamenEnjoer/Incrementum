@@ -4,12 +4,14 @@ import android.app.Activity;
 import android.content.ClipData;
 import android.content.ClipDescription;
 import android.content.Context;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 
+import java.util.List;
 import java.util.function.Consumer;
 
 public class CardsGeneration {
@@ -19,17 +21,17 @@ public class CardsGeneration {
         LinearLayout bottomCardsContainer = activity.findViewById(R.id.bottom_cards_container);
 
         for (int i = 0; i < 3; i++) {
-            oneCardGeneration(context, "organizmas", topCardsContainer);
-            oneCardGeneration(context, "organizmas", bottomCardsContainer);
+            oneCardGeneration(context, "organizmas", topCardsContainer, PlayersRepository.getInstance().getPlayerTwo());
+            oneCardGeneration(context, "organizmas", bottomCardsContainer, PlayersRepository.getInstance().getPlayerOne());
         }
-        oneCardGeneration(context, "oras", topCardsContainer);
-        oneCardGeneration(context, "oras", bottomCardsContainer);
+        oneCardGeneration(context, "oras", topCardsContainer, PlayersRepository.getInstance().getPlayerTwo());
+        oneCardGeneration(context, "oras", bottomCardsContainer, PlayersRepository.getInstance().getPlayerOne());
     }
 
-
-    public void oneCardGeneration(Context context, String cardType, LinearLayout cardsContainer) {
+    public void oneCardGeneration(Context context, String cardType, LinearLayout cardsContainer, Player player) {
         Card card = CardsRepository.getInstance().getCardByType(cardType).get(0);
         generateDraggableCards(cardsContainer, card, context);
+        player.addCardIdToHand(card.getId());
     }
 
     public void generateDraggableCards(LinearLayout container, Card card, Context context) {
@@ -42,9 +44,8 @@ public class CardsGeneration {
         cardContainer.setTag(prefix + "_" + card.getType());
         cardContainer.setTag(cardContainer.getTag() + "*" + card.getId());
 
-        int backgroundColor = card.getType().equals("organizmas") ? (prefix.equals("Top") ? 0xFF99FF99 : 0xFF228B22)
-                : (prefix.equals("Top") ? 0xFF99CCFF : 0xFF0000CD);
-        cardContainer.setBackgroundColor(backgroundColor);
+        if (card.getType().equals("organizmas")) cardContainer.setBackgroundColor(0xff99cc00);
+        else cardContainer.setBackgroundColor(0xff33b5e5);
 
         ImageView imageView = new ImageView(context);
         imageView.setLayoutParams(new LinearLayout.LayoutParams(200, 200));
@@ -54,6 +55,7 @@ public class CardsGeneration {
 
         TextView textView = new TextView(context);
         textView.setText(card.getName());
+        textView.setTextColor(0xFFFFFFFF);
         textView.setGravity(android.view.Gravity.CENTER);
         textView.setTextSize(16);
         textView.setPadding(0, 8, 0, 0);
@@ -65,7 +67,6 @@ public class CardsGeneration {
         params.setMargins(8, 8, 8, 8);
         cardContainer.setLayoutParams(params);
 
-        //ФРАГМЕНТ ИНФОРМАЦИИ
         cardContainer.setOnClickListener(v -> {
             CardInfoFragment cardInfoFragment = CardInfoFragment.newInstance(card);
             cardInfoFragment.show(((AppCompatActivity) context).getSupportFragmentManager(), "cardInfo");

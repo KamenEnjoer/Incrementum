@@ -1,12 +1,20 @@
 package com.example.incrementum;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 public class Player implements Serializable {
     private String name;
-    private List<String> cardsIdInHand;
+    private List<String> hand = new ArrayList<>();
+
+    public Player(String name) {
+        this.name = name;
+    }
 
     public String getName() { return name; }
-    public List<String> getCardsIdInHand() { return cardsIdInHand; }
+    public List<String> getCardsIdInHand() { return hand; }
+
+    public void addCardIdToHand(String cardID) { hand.add(cardID); }
+    public void removeCardIdFromHand(String cardID) { hand.remove(cardID); }
 }
