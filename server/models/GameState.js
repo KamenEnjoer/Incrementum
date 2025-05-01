@@ -8,14 +8,11 @@ const cellDataSchema = new mongoose.Schema({
   weatherDuration: { type: Number, default: 0 }
 }, { _id: false });
 
-const cardInHandSchema = new mongoose.Schema({
-  cardId: mongoose.Schema.Types.ObjectId
-}, { _id: false });
-
 const playerSchema = new mongoose.Schema({
   name: String,
-  hand: [cardInHandSchema]
+  hand: [String]
 }, { _id: false });
+
 
 const gameStateSchema = new mongoose.Schema({
   board: {
@@ -44,7 +41,8 @@ const gameStateSchema = new mongoose.Schema({
       column4: cellDataSchema, column5: cellDataSchema, column6: cellDataSchema
     }
   },
-  players: [playerSchema]
+  players: [playerSchema],
+  currentTurn: String
 });
 
 module.exports = mongoose.model('GameState', gameStateSchema, 'incrementum_board');
