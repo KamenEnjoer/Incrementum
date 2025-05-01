@@ -22,6 +22,7 @@ public class MainActivity extends AppCompatActivity {
     LinearLayout topCardsContainer;
     LinearLayout bottomCardsContainer;
     public static String gameId;
+    public static GameState defaultGameState;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,7 +31,7 @@ public class MainActivity extends AppCompatActivity {
 
         CardsRepository.getInstance().fetchCards(this,
                 () -> {
-                    GameState defaultGameState = new GameState();
+                    defaultGameState = new GameState();
                     defaultGameState.setBoard(generateEmptyBoard());
                     defaultGameState.setPlayers(generateDefaultPlayers());
                     defaultGameState.setCurrentTurn(PlayersRepository.getInstance().getCurrentPlayer().getName());

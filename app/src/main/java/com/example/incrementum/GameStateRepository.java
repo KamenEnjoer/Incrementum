@@ -102,7 +102,6 @@ public class GameStateRepository {
         });
     }
 
-
     public void updateGameState(Context context, String gameStateId, GameState updatedGameState, Runnable onSuccess, Consumer<Exception> onError) {
         OkHttpClient client = new OkHttpClient();
         Gson gson = new Gson();

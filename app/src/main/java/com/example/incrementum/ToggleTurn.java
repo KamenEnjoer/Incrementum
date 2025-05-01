@@ -35,6 +35,10 @@ public class ToggleTurn {
         toggleTurn(topCardsContainer, !isBottomTurn);
         toggleTurn(bottomCardsContainer, isBottomTurn);
         PlayersRepository.getInstance().switchTurn();
+        GameStateRepository.getInstance().updateGameState(context, MainActivity.gameId, MainActivity.defaultGameState,
+                ()->{},
+                (exception) -> {Log.e("SERVER", "Error in ToggleTurn: " + exception.getMessage());}
+        );
     }
 
     private void toggleTurn(LinearLayout cardsContainer, boolean isTurn) {
