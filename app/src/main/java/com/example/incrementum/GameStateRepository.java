@@ -1,5 +1,6 @@
 package com.example.incrementum;
 
+import android.app.Activity;
 import android.content.Context;
 import android.util.Log;
 import com.google.gson.Gson;
@@ -10,11 +11,13 @@ import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Consumer;
 
 public class GameStateRepository {
     private static GameStateRepository instance;
     private List<GameState> gameStates;
+    private GameState currentGameState;
 
     private GameStateRepository() { }
 
@@ -50,9 +53,9 @@ public class GameStateRepository {
                     Type listType = new TypeToken<List<GameState>>(){}.getType();
                     gameStates = new Gson().fromJson(json, listType);
 
-                    ((android.app.Activity) context).runOnUiThread(onSuccess);
+                    ((Activity) context).runOnUiThread(onSuccess);
                 } else {
-                    ((android.app.Activity) context).runOnUiThread(() ->
+                    ((Activity) context).runOnUiThread(() ->
                             onError.accept(new IOException("Server returned error code: " + response.code()))
                     );
                 }
@@ -60,11 +63,14 @@ public class GameStateRepository {
         });
     }
 
-    public void createGameState(Context context, GameState newGameState, Runnable onSuccess, Consumer<Exception> onError) {
+    public void createGameState(Context context, GameState newGameState,
+                                Runnable onSuccess,
+                                Consumer<Exception> onError,
+                                Consumer<String> onIdReceived) {
+
         OkHttpClient client = new OkHttpClient();
         Gson gson = new Gson();
         String json = gson.toJson(newGameState);
-        Log.d("ABOBA", "Json: " + json);
 
         RequestBody body = RequestBody.create(json, MediaType.parse("application/json"));
         Request request = new Request.Builder()
@@ -75,18 +81,52 @@ public class GameStateRepository {
         client.newCall(request).enqueue(new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
-                Log.e("SERVER", "Failed to create GameState in GameStateRepository: " + e.getMessage());
-                ((android.app.Activity) context).runOnUiThread(() -> onError.accept(e));
+                ((Activity) context).runOnUiThread(() -> onError.accept(e));
             }
 
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                 if (response.isSuccessful()) {
-                    if (gameStates == null) gameStates = new ArrayList<>();
-                    gameStates.add(newGameState);
-                    ((android.app.Activity) context).runOnUiThread(onSuccess);
+                    String responseBody = response.body().string();
+                    GameState createdGameState = gson.fromJson(responseBody, GameState.class);
+
+                    ((Activity) context).runOnUiThread(() -> {
+                        onIdReceived.accept(createdGameState.getId());
+                        onSuccess.run();
+                    });
                 } else {
-                    ((android.app.Activity) context).runOnUiThread(() ->
+                    ((Activity) context).runOnUiThread(() ->
+                            onError.accept(new IOException("Server returned error code: " + response.code())));
+                }
+            }
+        });
+    }
+
+
+    public void updateGameState(Context context, String gameStateId, GameState updatedGameState, Runnable onSuccess, Consumer<Exception> onError) {
+        OkHttpClient client = new OkHttpClient();
+        Gson gson = new Gson();
+        String json = gson.toJson(updatedGameState);
+
+        RequestBody body = RequestBody.create(json, MediaType.parse("application/json"));
+        Request request = new Request.Builder()
+                .url("http://10.0.2.2:3000/gamestates/" + gameStateId)
+                .put(body)
+                .build();
+
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                Log.e("SERVER", "Failed to update GameState in GameStateRepository: " + e.getMessage());
+                ((Activity) context).runOnUiThread(() -> onError.accept(e));
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                if (response.isSuccessful()) {
+                    ((Activity) context).runOnUiThread(onSuccess);
+                } else {
+                    ((Activity) context).runOnUiThread(() ->
                             onError.accept(new IOException("Server returned error code: " + response.code()))
                     );
                 }
@@ -95,7 +135,4 @@ public class GameStateRepository {
     }
 
 
-    public GameState getFirstGameState() {
-        return (gameStates != null && !gameStates.isEmpty()) ? gameStates.get(0) : null;
-    }
 }

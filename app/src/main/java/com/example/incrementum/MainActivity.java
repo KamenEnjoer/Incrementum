@@ -21,6 +21,7 @@ public class MainActivity extends AppCompatActivity {
     public Button weatherButton;
     LinearLayout topCardsContainer;
     LinearLayout bottomCardsContainer;
+    public static String gameId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,10 +30,10 @@ public class MainActivity extends AppCompatActivity {
 
         CardsRepository.getInstance().fetchCards(this,
                 () -> {
-                    GameState gameState = new GameState();
-                    gameState.setBoard(generateEmptyBoard());
-                    gameState.setPlayers(generateDefaultPlayers());
-                    gameState.setCurrentTurn(PlayersRepository.getInstance().getCurrentPlayer().getName());
+                    GameState defaultGameState = new GameState();
+                    defaultGameState.setBoard(generateEmptyBoard());
+                    defaultGameState.setPlayers(generateDefaultPlayers());
+                    defaultGameState.setCurrentTurn(PlayersRepository.getInstance().getCurrentPlayer().getName());
 
                     plantsButton = findViewById(R.id.plants_button);
                     plantsButton.setOnClickListener(new View.OnClickListener() {
@@ -60,13 +61,14 @@ public class MainActivity extends AppCompatActivity {
                     toggleTurn = new ToggleTurn();
                     toggleTurn.initializeTurn(this);
 
-
-                    Log.d("ABOBA", "First: " + PlayersRepository.getInstance().getPlayerOne().getCardsIdInHand().toString());
-                    Log.d("ABOBA", "Board: " + gameState.getBoard() + "\nPlayer1 hand: " + gameState.getPlayers().get(0).getCardsIdInHand().toString());
-
-                    GameStateRepository.getInstance().createGameState(this, gameState,
-                            () -> Log.d("SERVER", "GameState created successfully"),
-                            (exception) -> Log.e("SERVER", "Error creating GameState: " + exception.getMessage())
+                    GameStateRepository.getInstance().createGameState(this, defaultGameState,
+                            () -> {
+                                Log.d("SERVER", "GameState created successfully");
+                            },
+                            (exception) -> Log.e("SERVER", "Error creating GameState: " + exception.getMessage()),
+                            id -> {
+                                gameId = id;
+                            }
                     );
                 },
                 (exception) -> {Log.e("SERVER", "Error of cards loading: " + exception.getMessage());}

@@ -9,9 +9,7 @@ public class PlayersRepository {
     private PlayersRepository() {}
 
     public static PlayersRepository getInstance() {
-        if (instance == null) {
-            instance = new PlayersRepository();
-        }
+        if (instance == null) instance = new PlayersRepository();
         return instance;
     }
 
