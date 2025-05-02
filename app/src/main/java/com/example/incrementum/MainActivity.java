@@ -35,8 +35,8 @@ public class MainActivity extends AppCompatActivity {
         CardsRepository.getInstance().fetchCards(this,
                 () -> {
                     defaultGameState = new GameState();
-                    defaultGameState.setBoard(generateEmptyBoard());
                     defaultGameState.setPlayers(generateDefaultPlayers());
+                    defaultGameState.setBoard(generateEmptyBoard());
                     defaultGameState.setCurrentTurn(PlayersRepository.getInstance().getCurrentPlayer().getName());
 
                     bottomPoints = findViewById(R.id.bottom_points);
@@ -93,7 +93,7 @@ public class MainActivity extends AppCompatActivity {
         for (int row = 1; row <= 6; row++) {
             Map<String, Cell> rowMap = new HashMap<>();
             for (int col = 1; col <= 6; col++) {
-                Cell cell = new Cell("",0,0,"",0);
+                Cell cell = new Cell("", "",0,0,"",0);
                 rowMap.put("column" + col, cell);
             }
             board.put("row" + row, rowMap);

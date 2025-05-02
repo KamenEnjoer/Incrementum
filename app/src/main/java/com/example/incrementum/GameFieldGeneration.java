@@ -105,6 +105,7 @@ public class GameFieldGeneration {
 
                                         if (card.getType().equals("organizmas") && !capturedCell.getPlantCardId().isEmpty()) return true;
                                         else if (card.getType().equals("oras")) {
+                                            capturedCell.setPlayerName(PlayersRepository.getInstance().getCurrentPlayer().getName());
                                             capturedCell.setWeatherCardId(card.getId());
                                             capturedCell.setWeatherDuration(card.getDuration());
                                         }

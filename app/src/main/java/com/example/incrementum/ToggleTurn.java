@@ -13,6 +13,7 @@ import android.widget.GridLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -70,6 +71,14 @@ public class ToggleTurn {
                             ImageManager.setNewImage(context, cell, cellView);
                         }
                     }
+                    Player playerOne = PlayersRepository.getInstance().getPlayerOne();
+                    Player playerTwo = PlayersRepository.getInstance().getPlayerTwo();
+                    if (playerOne.getName().equals(cell.getPlayerName())) playerOne.setPoints(playerOne.getPoints()+cell.getPlantLevel());
+                    else playerTwo.setPoints(playerTwo.getPoints()+cell.getPlantLevel());
+                    TextView bottomPoints = activity.findViewById(R.id.bottom_points);
+                    TextView topPoints =  activity.findViewById(R.id.top_points);
+                    topPoints.setText(PlayersRepository.getInstance().getPlayerOne().getName() + " turi " + playerOne.getPoints() + " taškų.");
+                    bottomPoints.setText(PlayersRepository.getInstance().getPlayerTwo().getName() + " turi " + playerTwo.getPoints() + " taškų.");
                 }
             }
         }
@@ -89,7 +98,6 @@ public class ToggleTurn {
                     GameStateRepository.getInstance().fetchGameStateById(context,
                             GameStateRepository.getInstance().getCurrentGameState().getId(),
                             gameState -> {
-
                             },
                             (exception) -> {Log.e("SERVER", "Error in ToggleTurn (fetch): " + exception.getMessage());}
                     );

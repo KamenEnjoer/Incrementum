@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 
 const cellDataSchema = new mongoose.Schema({
+  playerName: { type: String, default: "" },
   plantCardId: { type: String, default: "" },
   plantLevel: { type: Number, default: 0 },
   plantProgress: { type: Number, default: 0 },

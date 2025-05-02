@@ -18,5 +18,6 @@ public class Player implements Serializable {
     public List<String> getCardsIdInHand() { return hand; }
 
     public void addCardIdToHand(String cardID) { hand.add(cardID); }
+    public void setPoints(int points) {this.points = points;}
     public void removeCardIdFromHand(String cardID) { hand.remove(cardID); }
 }
