@@ -36,16 +36,36 @@ public class CellInfoFragment extends DialogFragment {
         TextView titleText = view.findViewById(R.id.title_text);
         ImageView imageView = view.findViewById(R.id.info_image);
 
-        if (cellTag.contains("organizmas")){
-            String id = cellTag.substring(cellTag.indexOf("organizmas")+11, cellTag.indexOf("organizmas")+35);
-            Card card = CardsRepository.getInstance().getCardById(id);
-            int imageResId = requireContext().getResources().getIdentifier(card.getImageName(), "drawable", requireContext().getPackageName());
+        int row = (cellTag.charAt(0) - 'A') + 1;
+        int column = Character.getNumericValue(cellTag.charAt(1));
+        Cell capturedCell = GameStateRepository.getInstance().getCurrentGameState().getBoard().get("row" + row).get("column" + column);
+        Card plantCard = null;
+        Card weatherCard = null;
+
+        if (!capturedCell.getPlantCardId().isEmpty()){
+            String id = capturedCell.getPlantCardId();
+            plantCard = CardsRepository.getInstance().getCardById(id);
+            int imageResId = requireContext().getResources().getIdentifier(plantCard.getImageName(), "drawable", requireContext().getPackageName());
             if (imageResId != 0) imageView.setImageResource(imageResId);
         }
         else imageView.setImageResource(R.drawable.card_background);
+        if (!capturedCell.getWeatherCardId().isEmpty()){
+            String id = capturedCell.getWeatherCardId();
+            weatherCard = CardsRepository.getInstance().getCardById(id);
+        }
 
-        titleText.setText(cellTag.substring(0, 2));
-        infoText.setText("Состояние клетки:\n" + cellTag);
+        titleText.setText(cellTag);
+        String info = "Čia ";
+        if (plantCard!=null) {
+            info += "auga " + plantCard.getName() + ".\n";
+            if (capturedCell.getPlantLevel() == plantCard.getLevel()) info += "Jau išaugo.";
+            else info += (plantCard.getDuration() - capturedCell.getPlantProgress()) + " iki sekančio lygio.\n";
+            info += "Dabar šis langelis atneša " + capturedCell.getPlantLevel() + " taškų.\n";
+        }
+        else info += "niekas neauga.\n";
+        if (weatherCard!=null) info+=weatherCard.getDescription();
+
+        infoText.setText(info);
 
         view.setOnClickListener(v -> dismiss());
         return view;

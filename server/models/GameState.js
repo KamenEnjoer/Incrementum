@@ -10,6 +10,7 @@ const cellDataSchema = new mongoose.Schema({
 
 const playerSchema = new mongoose.Schema({
   name: String,
+  points: Number,
   hand: [String]
 }, { _id: false });
 

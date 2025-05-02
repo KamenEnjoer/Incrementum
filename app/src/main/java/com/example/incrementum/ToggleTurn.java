@@ -18,26 +18,41 @@ public class ToggleTurn {
         topCardsContainer = activity.findViewById(R.id.top_cards_container);
         bottomCardsContainer = activity.findViewById(R.id.bottom_cards_container);
 
-        toggleTurn(topCardsContainer, false);
-        toggleTurn(bottomCardsContainer, true);
+        GameStateRepository.getInstance().fetchGameStateById(context, MainActivity.gameId,
+                gameState -> {
+                    toggleTurn(topCardsContainer, false);
+                    toggleTurn(bottomCardsContainer, true);
+                },
+                (exception) -> {Log.e("SERVER", "Error in ToggleTurn (fetch): " + exception.getMessage());}
+        );
     }
 
     public void switchTurn(Context context) {
         Activity activity = (Activity) context;
         stepsCounter = activity.findViewById(R.id.steps_counter);
-        stepsCounter.setProgress(stepsCounter.getProgress()+1);
-        if (stepsCounter.getProgress() == 100){
-            return;
-        }
-
         isBottomTurn = !isBottomTurn;
 
         toggleTurn(topCardsContainer, !isBottomTurn);
         toggleTurn(bottomCardsContainer, isBottomTurn);
         PlayersRepository.getInstance().switchTurn();
-        GameStateRepository.getInstance().updateGameState(context, MainActivity.gameId, MainActivity.defaultGameState,
-                ()->{},
-                (exception) -> {Log.e("SERVER", "Error in ToggleTurn: " + exception.getMessage());}
+
+        stepsCounter.setProgress(stepsCounter.getProgress()+1);
+        if (stepsCounter.getProgress() == 100){
+            return;
+        }
+        Log.d("ABOBA", "A1:" + MainActivity.defaultGameState.getBoard().get("row1").get("column1"));
+        GameStateRepository.getInstance().updateGameState(context,
+                GameStateRepository.getInstance().getCurrentGameState().getId(),
+                GameStateRepository.getInstance().getCurrentGameState(),
+                ()->{
+                    GameStateRepository.getInstance().fetchGameStateById(context,
+                            GameStateRepository.getInstance().getCurrentGameState().getId(),
+                            gameState -> {
+                            },
+                            (exception) -> {Log.e("SERVER", "Error in ToggleTurn (fetch): " + exception.getMessage());}
+                    );
+                },
+                (exception) -> {Log.e("SERVER", "Error in ToggleTurn (update): " + exception.getMessage());}
         );
     }
 

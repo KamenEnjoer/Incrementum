@@ -10,24 +10,30 @@ app.use(express.json());
 mongoose.connect(process.env.MONGODB_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true
-}).then(() => console.log('Успешное подключение к MongoDB Atlas'))
-  .catch(err => console.error('Ошибка подключения:', err));
+}).then(() => console.log('CONNECTED TO MongoDB Atlas.'))
+  .catch(err => console.error('CONNECTION ERROR:', err));
 
 app.get('/cards', async (req, res) => {
   try {
     const cards = await Card.find();
     res.json(cards);
   } catch (err) {
-    res.status(500).json({ error: 'Ошибка при получении данных' });
+    res.status(500).json({ error: 'CARDS GETTING ERROR.' });
   }
 });
 
-app.get('/gamestates', async (req, res) => {
+app.get('/gamestates/:id', async (req, res) => {
   try {
-    const states = await GameState.find();
-    res.json(states);
+    const gameStateId = req.params.id;
+    const state = await GameState.findById(gameStateId);
+
+    if (!state) {
+      return res.status(404).json({ error: 'GAMESTATE BY ID WAS NOT FOUND WHEN ATTEMPTING TO GET.' });
+    }
+
+    res.json(state);
   } catch (err) {
-    res.status(500).json({ error: 'Ошибка при получении состояний игры' });
+    res.status(500).json({ error: 'GAMESTATE GETTING ERROR.' });
   }
 });
 
@@ -37,7 +43,7 @@ app.post('/gamestates', async (req, res) => {
     await gameState.save();
     res.status(201).json(gameState);
   } catch (err) {
-    res.status(400).json({ error: 'Ошибка при создании новой партии', details: err.message });
+    res.status(400).json({ error: 'NEW GAMESTATE INSERTING ERROR', details: err.message });
   }
 });
 
@@ -45,11 +51,11 @@ app.put('/gamestates/:id', async (req, res) => {
   try {
     const updatedGameState = await GameState.findByIdAndUpdate(req.params.id, req.body, { new: true });
     if (!updatedGameState) {
-      return res.status(404).json({ error: 'Партия не найдена' });
+      return res.status(404).json({ error: 'GAMESTATE BY ID WAS NOT FOUND WHEN ATTEMPTING TO UPDATE.' });
     }
     res.json(updatedGameState);
   } catch (err) {
-    res.status(400).json({ error: 'Ошибка при обновлении партии', details: err.message });
+    res.status(400).json({ error: 'GAMESTATE UPDATING ERROR', details: err.message });
   }
 });
 

@@ -48,8 +48,8 @@ public class GameFieldGeneration {
     private static void setupDragAndDropForCell(View cell, Context context) {
         cell.setOnClickListener(v -> {
             if (v instanceof ImageView) {
-                ImageView textViewCell = (ImageView) v;
-                CellInfoFragment cellInfoFragment = CellInfoFragment.newInstance(textViewCell.getTag().toString());
+                ImageView viewCell = (ImageView) v;
+                CellInfoFragment cellInfoFragment = CellInfoFragment.newInstance(viewCell.getTag().toString());
                 cellInfoFragment.show(((AppCompatActivity) context).getSupportFragmentManager(), "cellInfo");
             }
         });
@@ -73,8 +73,6 @@ public class GameFieldGeneration {
                         String draggedTag = event.getClipData().getItemAt(0).getText().toString();
                         draggedTag = draggedTag.substring(draggedTag.indexOf("*") + 1);
                         Card card = CardsRepository.getInstance().getCardById(draggedTag);
-
-                        if (v.getTag().toString().contains("organizmas") && card.getType().equals("organizmas")) return true;
 
                         int areaSize = 1;
                         if (card.getType().equals("oras")) areaSize = card.getSquare();
@@ -103,24 +101,28 @@ public class GameFieldGeneration {
                                     int cellIndex = r * gridLayout.getColumnCount() + c;
                                     View view = gridLayout.getChildAt(cellIndex);
                                     if (view instanceof ImageView) {
-                                        ImageView neighborCell = (ImageView) view;
+                                        ImageView cellView = (ImageView) view;
+                                        Cell capturedCell = GameStateRepository.getInstance().getCurrentGameState().getBoard().get("row" + (r+1)).get("column" + (c+1));
 
-                                        String newTag = neighborCell.getTag().toString();
-                                        if (card.getType().equals("oras") && neighborCell.getTag().toString().contains("oras")) {
-                                            newTag = newTag.replaceFirst("_oras\\*[a-fA-F0-9]{24}", "");
+                                        if (card.getType().equals("organizmas") && !capturedCell.getPlantCardId().isEmpty()) return true;
+                                        else if (card.getType().equals("oras")) {
+                                            capturedCell.setWeatherCardId(card.getId());
+                                            capturedCell.setWeatherDuration(card.getDuration());
                                         }
-                                        newTag += "_" + card.getType() + "*" + card.getId();
-                                        neighborCell.setTag(newTag.trim());
+                                        else {
+                                            capturedCell.setPlantCardId(card.getId());
+                                            capturedCell.setPlantLevel(1);
+                                            capturedCell.setPlantProgress(0);
+                                        }
 
-                                        boolean alreadyHasBlueBorder = neighborCell.getTag() != null && neighborCell.getTag().toString().contains("oras");
-                                        int imageResId = context.getResources().getIdentifier(card.getImageName(), "drawable", context.getPackageName());
-
-                                        int borderColor = Color.TRANSPARENT; // по умолчанию
+                                        int imageResId = context.getResources().getIdentifier(card.getImageNameByLevel(capturedCell.getPlantLevel()), "drawable", context.getPackageName());
+                                        int borderColor = Color.TRANSPARENT;
                                         if (card.getName().equals("Lietus")) {
                                             borderColor = Color.rgb(60 - card.getLevel()*20, 210 - card.getLevel()*20, 255);
                                         } else if (card.getName().equals("Saulė")) {
                                             borderColor = Color.rgb(255, 255 - card.getLevel()*50, 60 - card.getLevel()*20);
                                         }
+
                                         GradientDrawable borderDrawable = new GradientDrawable();
                                         borderDrawable.setShape(GradientDrawable.RECTANGLE);
                                         borderDrawable.setStroke(8, borderColor);
@@ -128,12 +130,12 @@ public class GameFieldGeneration {
                                         borderDrawable.setCornerRadius(5);
 
                                         Drawable[] layers = new Drawable[]{
-                                                neighborCell.getBackground() != null ? neighborCell.getBackground() : context.getDrawable(R.drawable.card_background),
+                                                cellView.getBackground() != null ? cellView.getBackground() : context.getDrawable(R.drawable.card_background),
                                                 card.getType().equals("organizmas") ? context.getDrawable(imageResId) : new ColorDrawable(Color.TRANSPARENT),
-                                                (card.getType().equals("oras") || alreadyHasBlueBorder) ? borderDrawable : new ColorDrawable(Color.TRANSPARENT)
+                                                card.getType().equals("oras") ? borderDrawable : new ColorDrawable(Color.TRANSPARENT)
                                         };
                                         LayerDrawable layerDrawable = new LayerDrawable(layers);
-                                        neighborCell.setBackground(layerDrawable);
+                                        cellView.setBackground(layerDrawable);
                                     }
                                 }
                             }

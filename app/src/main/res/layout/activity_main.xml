@@ -20,27 +20,20 @@
             android:orientation="horizontal"/>
     </HorizontalScrollView>
 
-    <GridLayout
-        android:id="@+id/game_grid"
+    <TextView
+        android:id="@+id/top_points"
         android:layout_width="match_parent"
-        android:layout_height="400dp"
-        android:layout_centerInParent="true"
-        android:layout_marginTop="16dp"
-        android:layout_marginBottom="16dp"
-        android:rowCount="6"
-        android:columnCount="6"
-        android:background="#E0E0E0"
-
-        android:clipChildren="false"
-        android:clipToPadding="false"
-        >
-    </GridLayout>
+        android:layout_height="25dp"
+        android:layout_below="@+id/horizontal_scroll_top"
+        android:background="#E8E8E8"
+        android:text="TURI - TAŠKŲ."
+        android:gravity="center"/>
 
     <LinearLayout
         android:id="@+id/buttons_container"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_above="@id/game_grid"
+        android:layout_below="@+id/top_points"
         android:orientation="horizontal"
         android:layout_centerHorizontal="true"
         android:gravity="center"
@@ -64,18 +57,45 @@
             android:textColor="#FFFFFF" />
     </LinearLayout>
 
+
+    <GridLayout
+        android:id="@+id/game_grid"
+        android:layout_width="match_parent"
+        android:layout_height="400dp"
+        android:layout_centerInParent="true"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"
+        android:layout_below="@+id/buttons_container"
+        android:rowCount="6"
+        android:columnCount="6"
+        android:background="#E0E0E0"
+
+        android:clipChildren="false"
+        android:clipToPadding="false"
+        >
+    </GridLayout>
+
     <ProgressBar
         android:id="@+id/steps_counter"
         android:layout_width="match_parent"
         android:layout_height="20dp"
         android:layout_below="@id/game_grid"
-        android:layout_marginTop="16dp"
-        android:layout_marginBottom="16dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"
         android:indeterminate="false"
         android:progressDrawable="@drawable/progress_bar"
         android:progress="0"
         android:max="100"
         style="@android:style/Widget.ProgressBar.Horizontal" />
+
+    <TextView
+        android:id="@+id/bottom_points"
+        android:layout_width="match_parent"
+        android:layout_height="25dp"
+        android:layout_below="@+id/steps_counter"
+        android:background="#E8E8E8"
+        android:text="TURI - TAŠKŲ."
+        android:gravity="center"/>
 
     <HorizontalScrollView
         android:id="@+id/horizontal_scroll_bottom"

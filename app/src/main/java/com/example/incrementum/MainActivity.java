@@ -6,6 +6,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.GridLayout;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -21,6 +22,8 @@ public class MainActivity extends AppCompatActivity {
     public Button weatherButton;
     LinearLayout topCardsContainer;
     LinearLayout bottomCardsContainer;
+    TextView bottomPoints;
+    TextView topPoints;
     public static String gameId;
     public static GameState defaultGameState;
 
@@ -35,6 +38,11 @@ public class MainActivity extends AppCompatActivity {
                     defaultGameState.setBoard(generateEmptyBoard());
                     defaultGameState.setPlayers(generateDefaultPlayers());
                     defaultGameState.setCurrentTurn(PlayersRepository.getInstance().getCurrentPlayer().getName());
+
+                    bottomPoints = findViewById(R.id.bottom_points);
+                    topPoints =  findViewById(R.id.top_points);
+                    bottomPoints.setText(PlayersRepository.getInstance().getPlayerOne().getName() + " turi 0 taškų.");
+                    topPoints.setText(PlayersRepository.getInstance().getPlayerTwo().getName() + " turi 0 taškų.");
 
                     plantsButton = findViewById(R.id.plants_button);
                     plantsButton.setOnClickListener(new View.OnClickListener() {
@@ -59,12 +67,11 @@ public class MainActivity extends AppCompatActivity {
 
                     cardsGeneration = new CardsGeneration();
                     cardsGeneration.cardsGenerationOnStart(this);
-                    toggleTurn = new ToggleTurn();
-                    toggleTurn.initializeTurn(this);
 
                     GameStateRepository.getInstance().createGameState(this, defaultGameState,
                             () -> {
-                                Log.d("SERVER", "GameState created successfully");
+                                toggleTurn = new ToggleTurn();
+                                toggleTurn.initializeTurn(this);
                             },
                             (exception) -> Log.e("SERVER", "Error creating GameState: " + exception.getMessage()),
                             id -> {

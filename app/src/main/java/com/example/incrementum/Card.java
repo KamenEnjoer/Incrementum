@@ -33,4 +33,9 @@ public class Card implements Serializable {
         else imageName = "p0_" + _id;
         return imageName;
     }
+    public String getImageNameByLevel(int level){
+        if (type.equals("oras")) imageName = "w0_" + _id;
+        else imageName = "p" + level + "_" + _id;
+        return imageName;
+    }
 }
