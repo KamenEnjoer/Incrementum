@@ -2,10 +2,20 @@ package com.example.incrementum;
 
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.GradientDrawable;
+import android.graphics.drawable.LayerDrawable;
 import android.util.Log;
 import android.view.View;
+import android.widget.GridLayout;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class ToggleTurn {
     private static boolean isBottomTurn = true;
@@ -34,20 +44,52 @@ public class ToggleTurn {
 
         toggleTurn(topCardsContainer, !isBottomTurn);
         toggleTurn(bottomCardsContainer, isBottomTurn);
-        PlayersRepository.getInstance().switchTurn();
+
+        for (int row = 1; row <= 6; row++) {
+            for (int col = 1; col <= 6; col++) {
+                Cell cell = GameStateRepository.getInstance().getCurrentGameState().getBoard().get("row" + row).get("column" + col);
+                Card plantCard; Card weatherCard = null;
+                if (!cell.getWeatherCardId().isEmpty()) {
+                    weatherCard = CardsRepository.getInstance().getCardById(cell.getWeatherCardId());
+                    if (cell.getWeatherDuration()<weatherCard.getDuration()) cell.setWeatherDuration(cell.getWeatherDuration()+1);
+                    else {
+                        cell.setWeatherDuration(0);
+                        cell.setWeatherCardId("");
+                    }
+                }
+                if (!cell.getPlantCardId().isEmpty()) {
+                    plantCard = CardsRepository.getInstance().getCardById(cell.getPlantCardId());
+                    if (cell.getPlantLevel()<plantCard.getLevel()) {
+                        cell.setPlantProgress(cell.getPlantProgress() + 1);
+                        if (cell.getPlantProgress()==plantCard.getDuration()) {
+                            cell.setPlantLevel(cell.getPlantLevel()+1);
+                            cell.setPlantProgress(0);
+
+                            String tag = ((char) ('A' + row -1)) + String.valueOf(col);
+                            ImageView cellView = activity.getWindow().getDecorView().findViewWithTag(tag);
+                            ImageManager.setNewImage(context, cell, cellView);
+                        }
+                    }
+                }
+            }
+        }
 
         stepsCounter.setProgress(stepsCounter.getProgress()+1);
-        if (stepsCounter.getProgress() == 100){
-            return;
-        }
-        Log.d("ABOBA", "A1:" + MainActivity.defaultGameState.getBoard().get("row1").get("column1"));
+
+        PlayersRepository.getInstance().switchTurn();
+        GameStateRepository.getInstance().getCurrentGameState().setCurrentTurn(PlayersRepository.getInstance().getCurrentPlayer().getName());
+        GameStateRepository.getInstance().getCurrentGameState().setPlayers(PlayersRepository.getInstance().getPlayers());
         GameStateRepository.getInstance().updateGameState(context,
                 GameStateRepository.getInstance().getCurrentGameState().getId(),
                 GameStateRepository.getInstance().getCurrentGameState(),
                 ()->{
+                    if (stepsCounter.getProgress() == 100){
+                        return;
+                    }
                     GameStateRepository.getInstance().fetchGameStateById(context,
                             GameStateRepository.getInstance().getCurrentGameState().getId(),
                             gameState -> {
+
                             },
                             (exception) -> {Log.e("SERVER", "Error in ToggleTurn (fetch): " + exception.getMessage());}
                     );

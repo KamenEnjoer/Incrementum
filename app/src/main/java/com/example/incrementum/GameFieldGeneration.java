@@ -7,13 +7,11 @@ import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.LayerDrawable;
-import android.util.Log;
 import android.view.DragEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.GridLayout;
 import android.widget.ImageView;
-import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 
 public class GameFieldGeneration {
@@ -39,6 +37,7 @@ public class GameFieldGeneration {
             cell.setLayoutParams(params);
             char row = (char) ('A' + (i / rowCount));
             cell.setTag(row + String.valueOf((i % columnCount)+1));
+
             setupDragAndDropForCell(cell, context);
             gridLayout.addView(cell);
         }
@@ -114,28 +113,7 @@ public class GameFieldGeneration {
                                             capturedCell.setPlantLevel(1);
                                             capturedCell.setPlantProgress(0);
                                         }
-
-                                        int imageResId = context.getResources().getIdentifier(card.getImageNameByLevel(capturedCell.getPlantLevel()), "drawable", context.getPackageName());
-                                        int borderColor = Color.TRANSPARENT;
-                                        if (card.getName().equals("Lietus")) {
-                                            borderColor = Color.rgb(60 - card.getLevel()*20, 210 - card.getLevel()*20, 255);
-                                        } else if (card.getName().equals("Saulė")) {
-                                            borderColor = Color.rgb(255, 255 - card.getLevel()*50, 60 - card.getLevel()*20);
-                                        }
-
-                                        GradientDrawable borderDrawable = new GradientDrawable();
-                                        borderDrawable.setShape(GradientDrawable.RECTANGLE);
-                                        borderDrawable.setStroke(8, borderColor);
-                                        borderDrawable.setColor(Color.TRANSPARENT);
-                                        borderDrawable.setCornerRadius(5);
-
-                                        Drawable[] layers = new Drawable[]{
-                                                cellView.getBackground() != null ? cellView.getBackground() : context.getDrawable(R.drawable.card_background),
-                                                card.getType().equals("organizmas") ? context.getDrawable(imageResId) : new ColorDrawable(Color.TRANSPARENT),
-                                                card.getType().equals("oras") ? borderDrawable : new ColorDrawable(Color.TRANSPARENT)
-                                        };
-                                        LayerDrawable layerDrawable = new LayerDrawable(layers);
-                                        cellView.setBackground(layerDrawable);
+                                        ImageManager.setNewImage(context, capturedCell, cellView);
                                     }
                                 }
                             }

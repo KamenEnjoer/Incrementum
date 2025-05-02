@@ -1,5 +1,8 @@
 package com.example.incrementum;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class PlayersRepository {
     private static PlayersRepository instance;
     private Player playerOne;
@@ -21,8 +24,13 @@ public class PlayersRepository {
 
     public Player getPlayerOne() { return playerOne; }
     public Player getPlayerTwo() { return playerTwo; }
-
     public Player getCurrentPlayer() { return currentPlayer; }
+    public List<Player> getPlayers() {
+        List<Player> players = new ArrayList<>();
+        players.add(playerOne);
+        players.add(playerTwo);
+        return players;
+    }
 
     public void switchTurn() {
         if (currentPlayer == playerOne) currentPlayer = playerTwo;
