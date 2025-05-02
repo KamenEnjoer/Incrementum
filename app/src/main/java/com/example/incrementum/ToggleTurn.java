@@ -85,8 +85,8 @@ public class ToggleTurn {
 
         stepsCounter.setProgress(stepsCounter.getProgress()+1);
 
-        PlayersRepository.getInstance().switchTurn();
-        GameStateRepository.getInstance().getCurrentGameState().setCurrentTurn(PlayersRepository.getInstance().getCurrentPlayer().getName());
+        //PlayersRepository.getInstance().switchTurn();
+        //GameStateRepository.getInstance().getCurrentGameState().setCurrentTurn(PlayersRepository.getInstance().getCurrentPlayer().getName());
         GameStateRepository.getInstance().getCurrentGameState().setPlayers(PlayersRepository.getInstance().getPlayers());
         GameStateRepository.getInstance().updateGameState(context,
                 GameStateRepository.getInstance().getCurrentGameState().getId(),

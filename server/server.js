@@ -22,6 +22,16 @@ app.get('/cards', async (req, res) => {
   }
 });
 
+app.get('/gamestates', async (req, res) => {
+  try {
+    const states = await GameState.find();
+    res.json(states);
+  } catch (err) {
+    console.error('Ошибка при получении всех GameState:', err);
+    res.status(500).json({ error: 'Ошибка при получении всех состояний игры.' });
+  }
+});
+
 app.get('/gamestates/:id', async (req, res) => {
   try {
     const gameStateId = req.params.id;
