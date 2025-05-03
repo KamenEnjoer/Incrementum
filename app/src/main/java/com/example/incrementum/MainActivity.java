@@ -20,6 +20,7 @@ public class MainActivity extends AppCompatActivity {
     TextView bottomPoints;
     TextView topPoints;
     public static String gameId;
+    public boolean isNewGame;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,13 +28,16 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         gameId = getIntent().getStringExtra("GameStateId");
+        isNewGame = getIntent().getBooleanExtra("IsNewGame", false);
 
         CardsRepository.getInstance().fetchCards(this,
                 () -> {
                     bottomPoints = findViewById(R.id.bottom_points);
                     topPoints =  findViewById(R.id.top_points);
-                    bottomPoints.setText(PlayersRepository.getInstance().getPlayerOne().getName() + " turi 0 taškų.");
-                    topPoints.setText(PlayersRepository.getInstance().getPlayerTwo().getName() + " turi 0 taškų.");
+                    Player playerOne = PlayersRepository.getInstance().getPlayerOne();
+                    Player playerTwo = PlayersRepository.getInstance().getPlayerTwo();
+                    topPoints.setText(playerOne.getName() + " turi " + playerOne.getPoints() + " taškų.");
+                    bottomPoints.setText(playerTwo.getName() + " turi " + playerTwo.getPoints() + " taškų.");
 
                     plantsButton = findViewById(R.id.plants_button);
                     plantsButton.setOnClickListener(new View.OnClickListener() {
@@ -57,10 +61,36 @@ public class MainActivity extends AppCompatActivity {
                     GameFieldGeneration.generateGameField(gameGrid, this);
 
                     cardsGeneration = new CardsGeneration();
-                    cardsGeneration.cardsGenerationOnStart(this);
+                    if (isNewGame) {
+                        cardsGeneration.cardsGenerationOnStart(this);
+                        GameStateRepository.getInstance().fetchGameStateById(this,
+                            gameId,
+                            gameState -> {
+                                GameStateRepository.getInstance().getCurrentGameState().setPlayers(PlayersRepository.getInstance().getPlayers());
+                                GameStateRepository.getInstance().updateGameState(this,
+                                    GameStateRepository.getInstance().getCurrentGameState().getId(),
+                                    GameStateRepository.getInstance().getCurrentGameState(),
+                                    () -> {
 
-                    toggleTurn = new ToggleTurn();
-                    toggleTurn.initializeTurn(this);
+                                    },
+                                    (exception) -> {Log.e("SERVER", "Error of updating in MainActivity: " + exception.getMessage());}
+                                );
+                            },
+                            (exception) -> {Log.e("SERVER", "Error of fetching in MainActivity: " + exception.getMessage());}
+                        );
+                    }
+                    else {
+                        GameStateRepository.getInstance().fetchGameStateById(this,
+                            GameStateRepository.getInstance().getCurrentGameState().getId(),
+                            gameState -> {
+                                PlayersRepository.getInstance().setPlayers(gameState.getPlayers().get(0), gameState.getPlayers().get(1));
+                                cardsGeneration.cardsRefresh(this);
+                                toggleTurn = new ToggleTurn();
+                                toggleTurn.initializeTurn(this);
+                            },
+                            (exception) -> {Log.e("SERVER", "Error of fetching in MainActivity: " + exception.getMessage());}
+                        );
+                    }
                 },
                 (exception) -> {Log.e("SERVER", "Error of cards loading: " + exception.getMessage());}
         );

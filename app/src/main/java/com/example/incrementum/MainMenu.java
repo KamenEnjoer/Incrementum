@@ -25,6 +25,7 @@ public class MainMenu extends AppCompatActivity {
     private ArrayAdapter<String> adapter;
     private List<String> gameIds = new ArrayList<>();
     public GameState defaultGameState;
+    public CardsGeneration cardsGeneration;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,6 +52,7 @@ public class MainMenu extends AppCompatActivity {
         gameListView.setOnItemClickListener((parent, view, position, id) -> {
             GameStateRepository.getInstance().fetchGameStateById(this, gameIds.get(position),
                 gameState -> {
+                    PlayersRepository.getInstance().initializePlayers(gameState.getPlayers().get(1), gameState.getPlayers().get(0));
                     Intent intent = new Intent(this, MainActivity.class);
                     intent.putExtra("GameStateId", gameIds.get(position));
                     startActivity(intent);
@@ -69,6 +71,7 @@ public class MainMenu extends AppCompatActivity {
             id -> {
                 Intent intent = new Intent(this, MainActivity.class);
                 intent.putExtra("GameStateId", id);
+                intent.putExtra("IsNewGame", true);
                 startActivity(intent);
             });
         });

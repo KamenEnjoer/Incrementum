@@ -29,7 +29,8 @@ public class ToggleTurn {
         topCardsContainer = activity.findViewById(R.id.top_cards_container);
         bottomCardsContainer = activity.findViewById(R.id.bottom_cards_container);
 
-        GameStateRepository.getInstance().fetchGameStateById(context, MainActivity.gameId,
+        GameStateRepository.getInstance().fetchGameStateById(context,
+                GameStateRepository.getInstance().getCurrentGameState().getId(),
                 gameState -> {
                     toggleTurn(topCardsContainer, false);
                     toggleTurn(bottomCardsContainer, true);
@@ -77,16 +78,14 @@ public class ToggleTurn {
                     else playerTwo.setPoints(playerTwo.getPoints()+cell.getPlantLevel());
                     TextView bottomPoints = activity.findViewById(R.id.bottom_points);
                     TextView topPoints =  activity.findViewById(R.id.top_points);
-                    topPoints.setText(PlayersRepository.getInstance().getPlayerOne().getName() + " turi " + playerOne.getPoints() + " taškų.");
-                    bottomPoints.setText(PlayersRepository.getInstance().getPlayerTwo().getName() + " turi " + playerTwo.getPoints() + " taškų.");
+                    topPoints.setText(playerOne.getName() + " turi " + playerOne.getPoints() + " taškų.");
+                    bottomPoints.setText(playerTwo.getName() + " turi " + playerTwo.getPoints() + " taškų.");
                 }
             }
         }
 
         stepsCounter.setProgress(stepsCounter.getProgress()+1);
 
-        //PlayersRepository.getInstance().switchTurn();
-        //GameStateRepository.getInstance().getCurrentGameState().setCurrentTurn(PlayersRepository.getInstance().getCurrentPlayer().getName());
         GameStateRepository.getInstance().getCurrentGameState().setPlayers(PlayersRepository.getInstance().getPlayers());
         GameStateRepository.getInstance().updateGameState(context,
                 GameStateRepository.getInstance().getCurrentGameState().getId(),

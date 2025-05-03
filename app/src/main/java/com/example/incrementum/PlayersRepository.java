@@ -32,9 +32,8 @@ public class PlayersRepository {
         return players;
     }
 
-    public void switchTurn() {
-        if (currentPlayer == playerOne) currentPlayer = playerTwo;
-        else currentPlayer = playerOne;
-        GameStateRepository.getInstance().getCurrentGameState().setCurrentTurn(currentPlayer.getName());
+    public void setPlayers(Player one, Player two){
+        playerOne = one;
+        playerTwo = two;
     }
 }

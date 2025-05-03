@@ -28,13 +28,31 @@ public class CardsGeneration {
         oneCardGeneration(context, "oras", bottomCardsContainer, PlayersRepository.getInstance().getPlayerOne());
     }
 
+    public void cardsRefresh(Context context){
+        Activity activity = (Activity) context;
+        LinearLayout topCardsContainer = activity.findViewById(R.id.top_cards_container);
+        LinearLayout bottomCardsContainer = activity.findViewById(R.id.bottom_cards_container);
+
+        Player playerOne = GameStateRepository.getInstance().getCurrentGameState().getPlayers().get(0);
+        Player playerTwo = GameStateRepository.getInstance().getCurrentGameState().getPlayers().get(1);
+        Card card;
+        for (String x: playerOne.getCardsIdInHand()) {
+            card = CardsRepository.getInstance().getCardById(x);
+            generateDraggableCard(topCardsContainer, card, context);
+        }
+        for (String x: playerTwo.getCardsIdInHand()) {
+            card = CardsRepository.getInstance().getCardById(x);
+            generateDraggableCard(bottomCardsContainer, card, context);
+        }
+    }
+
     public void oneCardGeneration(Context context, String cardType, LinearLayout cardsContainer, Player player) {
         Card card = CardsRepository.getInstance().getCardByType(cardType).get(0);
-        generateDraggableCards(cardsContainer, card, context);
+        generateDraggableCard(cardsContainer, card, context);
         player.addCardIdToHand(card.getId());
     }
 
-    public void generateDraggableCards(LinearLayout container, Card card, Context context) {
+    public void generateDraggableCard(LinearLayout container, Card card, Context context) {
         String prefix = container.getId() == R.id.top_cards_container ? "Top" : "Bottom";
 
         LinearLayout cardContainer = new LinearLayout(context);
