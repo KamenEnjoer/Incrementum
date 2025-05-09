@@ -167,7 +167,7 @@ public class GameStateRepository {
 
     public GameState getCurrentGameState() {return currentGameState;}
 
-    public List<GameState> getGameStates() {
-        return gameStates;
-    }
+    public List<GameState> getGameStates() {return gameStates;}
+
+    public void setCurrentGameState(GameState currentGameState) {this.currentGameState = currentGameState;}
 }

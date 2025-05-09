@@ -63,37 +63,10 @@ public class MainActivity extends AppCompatActivity {
                 GameFieldGeneration.generateGameField(gameGrid, this);
 
                 cardsGeneration = new CardsGeneration();
-                if (isNewGame) {
-                    cardsGeneration.cardsGenerationOnStart(this);
-                    GameStateRepository.getInstance().fetchGameStateById(this,
-                        gameId,
-                        gameState -> {
-                            GameStateRepository.getInstance().getCurrentGameState().setPlayers(PlayersRepository.getInstance().getPlayers());
-                            GameStateRepository.getInstance().updateGameState(this,
-                                GameStateRepository.getInstance().getCurrentGameState().getId(),
-                                GameStateRepository.getInstance().getCurrentGameState(),
-                                () -> {
-                                    toggleTurn = new ToggleTurn();
-                                    toggleTurn.initializeTurn(this);
-                                },
-                                (exception) -> {Log.e("SERVER", "Error of updating in MainActivity: " + exception.getMessage());}
-                            );
-                        },
-                        (exception) -> {Log.e("SERVER", "Error of fetching in MainActivity: " + exception.getMessage());}
-                    );
-                }
-                else {
-                    GameStateRepository.getInstance().fetchGameStateById(this,
-                        GameStateRepository.getInstance().getCurrentGameState().getId(),
-                        gameState -> {
-                            PlayersRepository.getInstance().setPlayers(gameState.getPlayers().get(0), gameState.getPlayers().get(1));
-                            cardsGeneration.cardsRefresh(this);
-                            toggleTurn = new ToggleTurn();
-                            toggleTurn.initializeTurn(this);
-                        },
-                        (exception) -> {Log.e("SERVER", "Error of fetching in MainActivity: " + exception.getMessage());}
-                    );
-                }
+                if (isNewGame) cardsGeneration.cardsGenerationOnStart(this);
+
+                toggleTurn = new ToggleTurn();
+                toggleTurn.initializeTurn(this);
             },
             (exception) -> {Log.e("SERVER", "Error of cards loading: " + exception.getMessage());}
         );
@@ -121,22 +94,13 @@ public class MainActivity extends AppCompatActivity {
                 runOnUiThread(() -> {
                     JSONObject data = (JSONObject) args[0];
                     try {
-                        Log.d("SOCKET.IO", "Received updated GameState");
                         String json = data.toString();
-
                         GameState updatedGameState = new Gson().fromJson(json, GameState.class);
-                        GameStateRepository.getInstance().updateGameState(MainActivity.this, gameId, updatedGameState,
-                                ()->{},
-                                (exception) -> {Log.e("SERVER", "Error updating GameState", exception);}
-                        );
-                        cardsGeneration.cardsRefresh(MainActivity.this);
-                        toggleTurn.initializeTurn(MainActivity.this);
 
-                        Player playerOne = PlayersRepository.getInstance().getPlayerOne();
-                        Player playerTwo = PlayersRepository.getInstance().getPlayerTwo();
-                        topPoints.setText(playerOne.getName() + " turi " + playerOne.getPoints() + " taškų.");
-                        bottomPoints.setText(playerTwo.getName() + " turi " + playerTwo.getPoints() + " taškų.");
-
+                        if (updatedGameState != GameStateRepository.getInstance().getCurrentGameState()){
+                            Log.d("SOCKET", "Updated GameState.");
+                            GameStateRepository.getInstance().setCurrentGameState(updatedGameState);
+                        }
                     } catch (Exception e) {
                         Log.e("SOCKET.IO", "Error parsing received GameState", e);
                     }
@@ -147,7 +111,16 @@ public class MainActivity extends AppCompatActivity {
 
     public void emitGameState() {
         Gson gson = new Gson();
-        mSocket.emit("update_game_state", gson.toJson(GameStateRepository.getInstance().getCurrentGameState()));
+        String jsonString = gson.toJson(GameStateRepository.getInstance().getCurrentGameState());
+        JSONObject jsonObject;
+        try {
+            jsonObject = new JSONObject(jsonString);
+        } catch (JSONException e) {
+            Log.e("SOCKET.IO", "Failed to convert JSON string to JSONObject", e);
+            return;
+        }
+
+        mSocket.emit("update_game_state", jsonObject);
     }
 
     public void addNewCard(String type) {

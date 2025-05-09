@@ -68,10 +68,14 @@ public class MainMenu extends AppCompatActivity {
             GameStateRepository.getInstance().createGameState(this, defaultGameState, () -> {
             }, (exception) -> Log.e("SERVER", "Error fetchGameStateById in MainMenu: " + exception.getMessage()),
             id -> {
-                Intent intent = new Intent(this, MainActivity.class);
-                intent.putExtra("GameStateId", id);
-                intent.putExtra("IsNewGame", true);
-                startActivity(intent);
+                GameStateRepository.getInstance().fetchGameStateById(this, id,
+                    gameState -> {
+                        Intent intent = new Intent(this, MainActivity.class);
+                        intent.putExtra("GameStateId", id);
+                        intent.putExtra("IsNewGame", true);
+                        startActivity(intent);
+                    }, (exception) -> Log.e("SERVER", "Error fetchGameStateById in MainMenu: " + exception.getMessage())
+                );
             });
         });
     }

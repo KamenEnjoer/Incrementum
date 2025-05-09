@@ -106,7 +106,7 @@ io.on('connection', (socket) => {
     try {
       const newGameState = await GameState.findByIdAndUpdate(gameId, updatedGameState, { new: true, upsert: true });
       console.log(`GameState ${gameId} updated by ${socket.id}`);
-      io.to(gameId).emit('gameStateUpdated', newGameState);
+      //io.to(gameId).emit('gameStateUpdated', newGameState);
     } catch (err) {
       console.error('Error updating GameState:', err);
     }
