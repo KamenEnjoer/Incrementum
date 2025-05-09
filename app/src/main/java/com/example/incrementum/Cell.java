@@ -7,14 +7,16 @@ public class Cell implements Serializable {
     private String plantCardId="";
     private int plantLevel=0;
     private int plantProgress=0;
+    private int plantHP=0;
     private String weatherCardId="";
     private int weatherDuration=0;
 
-    public Cell(String playerName, String plantCardId, int plantLevel, int plantProgress, String weatherCardId, int weatherDuration) {
+    public Cell(String playerName, String plantCardId, int plantLevel, int plantProgress, int plantHP, String weatherCardId, int weatherDuration) {
         this.playerName = playerName;
         this.plantCardId = plantCardId;
         this.plantLevel = plantLevel;
         this.plantProgress = plantProgress;
+        this.plantHP = plantHP;
         this.weatherCardId  = weatherCardId;
         this.weatherDuration = weatherDuration;
     }

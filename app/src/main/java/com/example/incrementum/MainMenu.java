@@ -25,7 +25,6 @@ public class MainMenu extends AppCompatActivity {
     private ArrayAdapter<String> adapter;
     private List<String> gameIds = new ArrayList<>();
     public GameState defaultGameState;
-    public CardsGeneration cardsGeneration;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -82,7 +81,7 @@ public class MainMenu extends AppCompatActivity {
         for (int row = 1; row <= 6; row++) {
             Map<String, Cell> rowMap = new HashMap<>();
             for (int col = 1; col <= 6; col++) {
-                Cell cell = new Cell("", "",0,0,"",0);
+                Cell cell = new Cell("", "",0,0, 0, "",0);
                 rowMap.put("column" + col, cell);
             }
             board.put("row" + row, rowMap);

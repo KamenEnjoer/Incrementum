@@ -1,6 +1,7 @@
 package com.example.incrementum;
 
 import java.io.Serializable;
+import java.util.List;
 
 public class Card implements Serializable {
     private String _id;
@@ -10,15 +11,19 @@ public class Card implements Serializable {
     private int level;
     private int duration;
     private int square;
+    private List<Condition> favorableConditions;
+    private List<Condition> unfavorableConditions;
     private String imageName;
 
-    public Card(String name, String description, String type, int level, int duration, int square) {
+    public Card(String name, String description, String type, int level, int duration, int square, List<Condition> favorableConditions, List<Condition> unfavorableConditions) {
         this.name = name;
         this.description = description;
         this.type = type;
         this.level = level;
         this.duration = duration;
         this.square = square;
+        this.favorableConditions = favorableConditions;
+        this.unfavorableConditions = unfavorableConditions;
     }
 
     public String getId() {return _id;}
@@ -28,6 +33,8 @@ public class Card implements Serializable {
     public int getLevel() {return level;}
     public int getDuration() {return duration;}
     public int getSquare() {return square;}
+    public List<Condition> getFavorableConditions() {return favorableConditions;}
+    public List<Condition> getUnfavorableConditions() {return unfavorableConditions;}
     public String getImageName(){
         if (type.equals("oras")) imageName = "w0_" + _id;
         else imageName = "p0_" + _id;
@@ -38,4 +45,5 @@ public class Card implements Serializable {
         else imageName = "p" + level + "_" + _id;
         return imageName;
     }
+
 }
