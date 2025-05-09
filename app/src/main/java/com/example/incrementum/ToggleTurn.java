@@ -2,21 +2,12 @@ package com.example.incrementum;
 
 import android.app.Activity;
 import android.content.Context;
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
-import android.graphics.drawable.Drawable;
-import android.graphics.drawable.GradientDrawable;
-import android.graphics.drawable.LayerDrawable;
 import android.util.Log;
 import android.view.View;
-import android.widget.GridLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-
-import java.util.HashMap;
-import java.util.Map;
 
 public class ToggleTurn {
     private static boolean isBottomTurn = true;
@@ -113,7 +104,10 @@ public class ToggleTurn {
         }
     }
 
-    public LinearLayout currentPlayerContainer(){
+    public LinearLayout currentPlayerContainer(Context context){
+        Activity activity = (Activity) context;
+        topCardsContainer = activity.findViewById(R.id.top_cards_container);
+        bottomCardsContainer = activity.findViewById(R.id.bottom_cards_container);
         if (isBottomTurn) return bottomCardsContainer;
         else return topCardsContainer;
     }

@@ -28,7 +28,7 @@ app.get('/gamestates', async (req, res) => {
     res.json(states);
   } catch (err) {
     console.error('Ошибка при получении всех GameState:', err);
-    res.status(500).json({ error: 'Ошибка при получении всех состояний игры.' });
+    res.status(500).json({ error: 'GAMESTATES WAS NOT FOUND WHEN ATTEMPTING TO GET.' });
   }
 });
 
