@@ -56,7 +56,8 @@ public class MainActivity extends AppCompatActivity {
                                 GameStateRepository.getInstance().getCurrentGameState().getId(),
                                 GameStateRepository.getInstance().getCurrentGameState(),
                                 () -> {
-
+                                    toggleTurn = new ToggleTurn();
+                                    toggleTurn.initializeTurn(this);
                                 },
                                 (exception) -> {Log.e("SERVER", "Error of updating in MainActivity: " + exception.getMessage());}
                             );
