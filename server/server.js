@@ -1,11 +1,21 @@
 require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
+
 const Card = require('./models/Card');
 const GameState = require('./models/GameState');
 
 const app = express();
 app.use(express.json());
+
+const http = require('http').createServer(app);
+const { Server } = require('socket.io');
+const io = new Server(http, {
+  cors: {
+    origin: "*",
+    methods: ["GET", "POST"]
+  }
+});
 
 mongoose.connect(process.env.MONGODB_URI, {
   useNewUrlParser: true,
@@ -27,7 +37,7 @@ app.get('/gamestates', async (req, res) => {
     const states = await GameState.find();
     res.json(states);
   } catch (err) {
-    console.error('Ошибка при получении всех GameState:', err);
+    console.error('ALL GAMESTATES GETTING ERROR', err);
     res.status(500).json({ error: 'GAMESTATES WAS NOT FOUND WHEN ATTEMPTING TO GET.' });
   }
 });
@@ -63,12 +73,50 @@ app.put('/gamestates/:id', async (req, res) => {
     if (!updatedGameState) {
       return res.status(404).json({ error: 'GAMESTATE BY ID WAS NOT FOUND WHEN ATTEMPTING TO UPDATE.' });
     }
+    io.to(updatedGameState._id.toString()).emit('gameStateUpdated', updatedGameState); // обновляем только участников этой игры
     res.json(updatedGameState);
   } catch (err) {
     res.status(400).json({ error: 'GAMESTATE UPDATING ERROR', details: err.message });
   }
 });
 
-app.listen(3000, '0.0.0.0', () => {
-  console.log('Server running on http://localhost:3000');
+// === Socket.IO ===
+io.on('connection', (socket) => {
+  console.log('A user connected: ' + socket.id);
+
+  socket.on('join_game', async (gameId) => {
+    socket.join(gameId);
+    console.log(`User ${socket.id} joined game ${gameId}`);
+    try {
+      const gameState = await GameState.findById(gameId);
+      if (gameState) {
+        socket.emit('gameStateUpdated', gameState);
+      }
+    } catch (err) {
+      console.error('Error fetching GameState on join:', err);
+    }
+  });
+
+  socket.on('update_game_state', async (updatedGameState) => {
+    const gameId = updatedGameState._id;
+    if (!gameId) {
+      console.error('update_game_state: No _id in GameState');
+      return;
+    }
+    try {
+      const newGameState = await GameState.findByIdAndUpdate(gameId, updatedGameState, { new: true, upsert: true });
+      console.log(`GameState ${gameId} updated by ${socket.id}`);
+      io.to(gameId).emit('gameStateUpdated', newGameState);
+    } catch (err) {
+      console.error('Error updating GameState:', err);
+    }
+  });
+
+  socket.on('disconnect', () => {
+    console.log('A user disconnected: ' + socket.id);
+  });
+});
+
+http.listen(3000, '0.0.0.0', () => {
+  console.log('Server running with Socket.IO on http://localhost:3000');
 });

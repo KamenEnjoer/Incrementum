@@ -10,6 +10,14 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.gson.Gson;
+
+import io.socket.client.IO;
+import io.socket.client.Socket;
+import io.socket.emitter.Emitter;
+import org.json.JSONObject;
+import org.json.JSONException;
+
 public class MainActivity extends AppCompatActivity {
     ToggleTurn toggleTurn;
     CardsGeneration cardsGeneration;
@@ -21,6 +29,15 @@ public class MainActivity extends AppCompatActivity {
     TextView topPoints;
     public static String gameId;
     public boolean isNewGame;
+
+    private Socket mSocket;
+    {
+        try {
+            mSocket = IO.socket("http://10.0.2.2:3000");
+        } catch (Exception e) {
+            Log.e("SOCKET.IO", "Error initializing socket", e);
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -95,10 +112,48 @@ public class MainActivity extends AppCompatActivity {
                 addNewCard("oras");
             }
         });
+
+        mSocket.connect();
+        mSocket.emit("join_game", gameId);
+        mSocket.on("gameStateUpdated", new Emitter.Listener() {
+            @Override
+            public void call(Object... args) {
+                runOnUiThread(() -> {
+                    JSONObject data = (JSONObject) args[0];
+                    try {
+                        Log.d("SOCKET.IO", "Received updated GameState");
+                        String json = data.toString();
+
+                        GameState updatedGameState = new Gson().fromJson(json, GameState.class);
+                        GameStateRepository.getInstance().updateGameState(MainActivity.this, gameId, updatedGameState,
+                                ()->{},
+                                (exception) -> {Log.e("SERVER", "Error updating GameState", exception);}
+                        );
+                        cardsGeneration.cardsRefresh(MainActivity.this);
+                        toggleTurn.initializeTurn(MainActivity.this);
+
+                        Player playerOne = PlayersRepository.getInstance().getPlayerOne();
+                        Player playerTwo = PlayersRepository.getInstance().getPlayerTwo();
+                        topPoints.setText(playerOne.getName() + " turi " + playerOne.getPoints() + " taškų.");
+                        bottomPoints.setText(playerTwo.getName() + " turi " + playerTwo.getPoints() + " taškų.");
+
+                    } catch (Exception e) {
+                        Log.e("SOCKET.IO", "Error parsing received GameState", e);
+                    }
+                });
+            }
+        });
+    }
+
+    public void emitGameState() {
+        Gson gson = new Gson();
+        mSocket.emit("update_game_state", gson.toJson(GameStateRepository.getInstance().getCurrentGameState()));
     }
 
     public void addNewCard(String type) {
         cardsGeneration.oneCardGeneration(this, type, toggleTurn.currentPlayerContainer(this), PlayersRepository.getInstance().getCurrentPlayer());
         toggleTurn.switchTurn(this);
+
+        emitGameState();
     }
 }
