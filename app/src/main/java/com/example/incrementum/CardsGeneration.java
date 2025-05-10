@@ -37,25 +37,28 @@ public class CardsGeneration {
         topCardsContainer.removeAllViews();
         bottomCardsContainer.removeAllViews();
 
-        Player playerOne;
-        Player playerTwo;
-        if (MainActivity.isNewGame){
-            playerOne = GameStateRepository.getInstance().getCurrentGameState().getPlayers().get(0);
-            playerTwo = GameStateRepository.getInstance().getCurrentGameState().getPlayers().get(1);
-        } else { playerOne = GameStateRepository.getInstance().getCurrentGameState().getPlayers().get(0);
-            playerTwo = GameStateRepository.getInstance().getCurrentGameState().getPlayers().get(1);
+        Player playerOne = GameStateRepository.getInstance().getCurrentGameState().getPlayers().get(0);
+        Player playerTwo = GameStateRepository.getInstance().getCurrentGameState().getPlayers().get(1);
+
+        Player localPlayer, opponentPlayer;
+        if (playerOne.getName().equals(MainActivity.currentPlayerName)){
+            localPlayer = playerOne;
+            opponentPlayer = playerTwo;
+        } else {
+            localPlayer = playerTwo;
+            opponentPlayer = playerOne;
         }
 
-        Card card;
-        for (String x: playerOne.getCardsIdInHand()) {
-            card = CardsRepository.getInstance().getCardById(x);
-            generateDraggableCard(topCardsContainer, card, context);
-        }
-        for (String x: playerTwo.getCardsIdInHand()) {
-            card = CardsRepository.getInstance().getCardById(x);
+        for (String x: localPlayer.getCardsIdInHand()) {
+            Card card = CardsRepository.getInstance().getCardById(x);
             generateDraggableCard(bottomCardsContainer, card, context);
         }
+        for (String x: opponentPlayer.getCardsIdInHand()) {
+            Card card = CardsRepository.getInstance().getCardById(x);
+            generateDraggableCard(topCardsContainer, card, context);
+        }
     }
+
 
     public void oneCardGeneration(Context context, String cardType, LinearLayout cardsContainer, Player player) {
         Card card = CardsRepository.getInstance().getCardByType(cardType).get(0);

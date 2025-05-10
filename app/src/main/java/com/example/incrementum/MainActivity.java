@@ -28,7 +28,10 @@ public class MainActivity extends AppCompatActivity {
     TextView bottomPoints;
     TextView topPoints;
     public static String gameId;
-    public static boolean isNewGame;
+
+    public boolean isNewGame;
+    public static String currentPlayerName;
+
 
     private static Socket mSocket;
     {
@@ -82,6 +85,11 @@ public class MainActivity extends AppCompatActivity {
                     toggleTurn.initializeTurn(this, isNewGame);
                 }
 
+                playerOne = GameStateRepository.getInstance().getCurrentGameState().getPlayers().get(0);
+                playerTwo = GameStateRepository.getInstance().getCurrentGameState().getPlayers().get(1);
+                if (isNewGame) currentPlayerName = playerOne.getName();
+                else currentPlayerName = playerTwo.getName();
+
                 mSocket.connect();
                 mSocket.emit("join_game", gameId);
                 mSocket.on("gameStateUpdated", new Emitter.Listener() {
@@ -93,16 +101,15 @@ public class MainActivity extends AppCompatActivity {
                                 String json = data.toString();
                                 GameState updatedGameState = new Gson().fromJson(json, GameState.class);
                                 if (!updatedGameState.getCurrentTurn().equals(GameStateRepository.getInstance().getCurrentGameState().getCurrentTurn())){
-                                    Log.d("ABOBA1", String.valueOf(updatedGameState.getPlayers().get(0).getCardsIdInHand().size()));
                                     GameStateRepository.getInstance().setCurrentGameState(updatedGameState);
+
                                     cardsGeneration.cardsRefresh(MainActivity.this);
+
                                     GameFieldGeneration.generateGameField(gameGrid, MainActivity.this);
                                     toggleTurn.toggleTurn(MainActivity.this, topCardsContainer, false);
-                                    GameState currentGameState = GameStateRepository.getInstance().getCurrentGameState();
-                                    if (isNewGame && currentGameState.getCurrentTurn().equals(currentGameState.getPlayers().get(0).getName()) ||
-                                        !isNewGame && currentGameState.getCurrentTurn().equals(currentGameState.getPlayers().get(1).getName())){
-                                        toggleTurn.toggleTurn(MainActivity.this, bottomCardsContainer, true);
-                                    } else toggleTurn.toggleTurn(MainActivity.this, bottomCardsContainer, false);
+
+                                    boolean isMyTurn = updatedGameState.getCurrentTurn().equals(MainActivity.currentPlayerName);
+                                    toggleTurn.toggleTurn(MainActivity.this, bottomCardsContainer, isMyTurn);
                                 }
                             } catch (Exception e) {
                                 Log.e("SOCKET.IO", "Error parsing received GameState", e);

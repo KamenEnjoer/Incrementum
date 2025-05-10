@@ -32,8 +32,7 @@ public class ToggleTurn {
 
     public boolean isBottomTurn() {
         String currentTurn = GameStateRepository.getInstance().getCurrentGameState().getCurrentTurn();
-        String bottomPlayerName = GameStateRepository.getInstance().getCurrentGameState().getPlayers().get(0).getName();
-        return currentTurn.equals(bottomPlayerName);
+        return currentTurn.equals(MainActivity.currentPlayerName);
     }
 
     public void switchTurn(Context context) {
