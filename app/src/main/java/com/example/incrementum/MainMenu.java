@@ -63,7 +63,7 @@ public class MainMenu extends AppCompatActivity {
             defaultGameState = new GameState();
             defaultGameState.setPlayers(generateDefaultPlayers());
             defaultGameState.setBoard(generateEmptyBoard());
-            defaultGameState.setCurrentTurn(PlayersRepository.getInstance().getCurrentPlayer().getName());
+            defaultGameState.setCurrentTurn(PlayersRepository.getInstance().getPlayerOne().getName());
 
             GameStateRepository.getInstance().createGameState(this, defaultGameState, () -> {
             }, (exception) -> Log.e("SERVER", "Error fetchGameStateById in MainMenu: " + exception.getMessage()),

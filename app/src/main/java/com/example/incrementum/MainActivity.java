@@ -30,7 +30,7 @@ public class MainActivity extends AppCompatActivity {
     public static String gameId;
     public boolean isNewGame;
 
-    private Socket mSocket;
+    private static Socket mSocket;
     {
         try {
             mSocket = IO.socket("http://10.0.2.2:3000");
@@ -63,10 +63,47 @@ public class MainActivity extends AppCompatActivity {
                 GameFieldGeneration.generateGameField(gameGrid, this);
 
                 cardsGeneration = new CardsGeneration();
-                if (isNewGame) cardsGeneration.cardsGenerationOnStart(this);
+                if (isNewGame) {
+                    cardsGeneration.cardsGenerationOnStart(this);
+                    GameStateRepository.getInstance().updateGameState(this, gameId,
+                        GameStateRepository.getInstance().getCurrentGameState(),
+                        ()->{},
+                        (exception) -> Log.e("SERVER", "Error fetchGameStateById in MainMenu: " + exception.getMessage())
+                    );
+                }
+                else cardsGeneration.cardsRefresh(this);
 
                 toggleTurn = new ToggleTurn();
                 toggleTurn.initializeTurn(this);
+
+                mSocket.connect();
+                mSocket.emit("join_game", gameId);
+                mSocket.on("gameStateUpdated", new Emitter.Listener() {
+                    @Override
+                    public void call(Object... args) {
+                        runOnUiThread(() -> {
+                            JSONObject data = (JSONObject) args[0];
+                            try {
+                                String json = data.toString();
+                                GameState updatedGameState = new Gson().fromJson(json, GameState.class);
+                                Log.d("SOCKET", "Getting GameState.");
+                                if (!updatedGameState.getCurrentTurn().equals(GameStateRepository.getInstance().getCurrentGameState().getCurrentTurn())){
+                                    Log.d("SOCKET", "Updated GameState.");
+                                    GameStateRepository.getInstance().fetchGameStateById(MainActivity.this, gameId,
+                                            gameState -> {
+                                                PlayersRepository.getInstance().setPlayers(gameState.getPlayers().get(0), gameState.getPlayers().get(1));
+                                                cardsGeneration.cardsRefresh(MainActivity.this);
+                                            },
+                                            (exception) -> Log.e("SERVER", "Error fetchGameStateById in MainMenu: " + exception.getMessage())
+                                    );
+
+                                }
+                            } catch (Exception e) {
+                                Log.e("SOCKET.IO", "Error parsing received GameState", e);
+                            }
+                        });
+                    }
+                });
             },
             (exception) -> {Log.e("SERVER", "Error of cards loading: " + exception.getMessage());}
         );
@@ -85,31 +122,9 @@ public class MainActivity extends AppCompatActivity {
                 addNewCard("oras");
             }
         });
-
-        mSocket.connect();
-        mSocket.emit("join_game", gameId);
-        mSocket.on("gameStateUpdated", new Emitter.Listener() {
-            @Override
-            public void call(Object... args) {
-                runOnUiThread(() -> {
-                    JSONObject data = (JSONObject) args[0];
-                    try {
-                        String json = data.toString();
-                        GameState updatedGameState = new Gson().fromJson(json, GameState.class);
-
-                        if (updatedGameState != GameStateRepository.getInstance().getCurrentGameState()){
-                            Log.d("SOCKET", "Updated GameState.");
-                            GameStateRepository.getInstance().setCurrentGameState(updatedGameState);
-                        }
-                    } catch (Exception e) {
-                        Log.e("SOCKET.IO", "Error parsing received GameState", e);
-                    }
-                });
-            }
-        });
     }
 
-    public void emitGameState() {
+    public static void emitGameState() {
         Gson gson = new Gson();
         String jsonString = gson.toJson(GameStateRepository.getInstance().getCurrentGameState());
         JSONObject jsonObject;
@@ -124,9 +139,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void addNewCard(String type) {
-        cardsGeneration.oneCardGeneration(this, type, toggleTurn.currentPlayerContainer(this), PlayersRepository.getInstance().getCurrentPlayer());
+        Player player;
+        if (GameStateRepository.getInstance().getCurrentGameState().getCurrentTurn().equals(GameStateRepository.getInstance().getCurrentGameState().getPlayers().get(0).getName())){
+            player=GameStateRepository.getInstance().getCurrentGameState().getPlayers().get(0);
+        }
+        else player=GameStateRepository.getInstance().getCurrentGameState().getPlayers().get(1);
+        cardsGeneration.oneCardGeneration(this, type, toggleTurn.currentPlayerContainer(this), player);
         toggleTurn.switchTurn(this);
-
-        emitGameState();
     }
 }

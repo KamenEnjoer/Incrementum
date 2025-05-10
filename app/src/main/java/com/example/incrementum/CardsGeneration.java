@@ -22,11 +22,11 @@ public class CardsGeneration {
         LinearLayout bottomCardsContainer = activity.findViewById(R.id.bottom_cards_container);
 
         for (int i = 0; i < 3; i++) {
-            oneCardGeneration(context, "organizmas", topCardsContainer, PlayersRepository.getInstance().getPlayerTwo());
-            oneCardGeneration(context, "organizmas", bottomCardsContainer, PlayersRepository.getInstance().getPlayerOne());
+            oneCardGeneration(context, "organizmas", topCardsContainer, GameStateRepository.getInstance().getCurrentGameState().getPlayers().get(1));
+            oneCardGeneration(context, "organizmas", bottomCardsContainer, GameStateRepository.getInstance().getCurrentGameState().getPlayers().get(0));
         }
-        oneCardGeneration(context, "oras", topCardsContainer, PlayersRepository.getInstance().getPlayerTwo());
-        oneCardGeneration(context, "oras", bottomCardsContainer, PlayersRepository.getInstance().getPlayerOne());
+        oneCardGeneration(context, "oras", topCardsContainer, GameStateRepository.getInstance().getCurrentGameState().getPlayers().get(1));
+        oneCardGeneration(context, "oras", bottomCardsContainer, GameStateRepository.getInstance().getCurrentGameState().getPlayers().get(0));
     }
 
     public void cardsRefresh(Context context){

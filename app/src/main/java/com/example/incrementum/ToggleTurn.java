@@ -33,7 +33,12 @@ public class ToggleTurn {
     public void switchTurn(Context context) {
         Activity activity = (Activity) context;
         stepsCounter = activity.findViewById(R.id.steps_counter);
+        Player playerOne = PlayersRepository.getInstance().getPlayerOne();
+        Player playerTwo = PlayersRepository.getInstance().getPlayerTwo();
         isBottomTurn = !isBottomTurn;
+        if (isBottomTurn) GameStateRepository.getInstance().getCurrentGameState().setCurrentTurn(playerOne.getName());
+        else GameStateRepository.getInstance().getCurrentGameState().setCurrentTurn(playerTwo.getName());
+
 
         toggleTurn(topCardsContainer, !isBottomTurn);
         toggleTurn(bottomCardsContainer, isBottomTurn);
@@ -63,8 +68,6 @@ public class ToggleTurn {
                             ImageManager.setNewImage(context, cell, cellView);
                         }
                     }
-                    Player playerOne = PlayersRepository.getInstance().getPlayerOne();
-                    Player playerTwo = PlayersRepository.getInstance().getPlayerTwo();
                     if (playerOne.getName().equals(cell.getPlayerName())) playerOne.setPoints(playerOne.getPoints()+cell.getPlantLevel());
                     else playerTwo.setPoints(playerTwo.getPoints()+cell.getPlantLevel());
                     TextView bottomPoints = activity.findViewById(R.id.bottom_points);
@@ -78,22 +81,10 @@ public class ToggleTurn {
         stepsCounter.setProgress(stepsCounter.getProgress()+1);
 
         GameStateRepository.getInstance().getCurrentGameState().setPlayers(PlayersRepository.getInstance().getPlayers());
-        GameStateRepository.getInstance().updateGameState(context,
-                GameStateRepository.getInstance().getCurrentGameState().getId(),
-                GameStateRepository.getInstance().getCurrentGameState(),
-                ()->{
-                    if (stepsCounter.getProgress() == 100){
-                        return;
-                    }
-                    GameStateRepository.getInstance().fetchGameStateById(context,
-                            GameStateRepository.getInstance().getCurrentGameState().getId(),
-                            gameState -> {
-                            },
-                            (exception) -> {Log.e("SERVER", "Error in ToggleTurn (fetch): " + exception.getMessage());}
-                    );
-                },
-                (exception) -> {Log.e("SERVER", "Error in ToggleTurn (update): " + exception.getMessage());}
-        );
+        if (stepsCounter.getProgress() == 100){
+            return;
+        }
+        MainActivity.emitGameState();
     }
 
     private void toggleTurn(LinearLayout cardsContainer, boolean isTurn) {
