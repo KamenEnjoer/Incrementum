@@ -85,7 +85,6 @@ public class ToggleTurn {
 
         stepsCounter.setProgress(stepsCounter.getProgress()+1);
 
-        //GameStateRepository.getInstance().getCurrentGameState().setPlayers(PlayersRepository.getInstance().getPlayers());
         if (stepsCounter.getProgress() == 100){
             return;
         }

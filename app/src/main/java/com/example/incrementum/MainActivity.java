@@ -67,14 +67,19 @@ public class MainActivity extends AppCompatActivity {
                     cardsGeneration.cardsGenerationOnStart(this);
                     GameStateRepository.getInstance().updateGameState(this, gameId,
                         GameStateRepository.getInstance().getCurrentGameState(),
-                        ()->{},
+                        ()->{
+                            toggleTurn = new ToggleTurn();
+                            toggleTurn.initializeTurn(this);
+                        },
                         (exception) -> Log.e("SERVER", "Error fetchGameStateById in MainMenu: " + exception.getMessage())
                     );
                 }
-                else cardsGeneration.cardsRefresh(this);
+                else {
+                    cardsGeneration.cardsRefresh(this);
+                    toggleTurn = new ToggleTurn();
+                    toggleTurn.initializeTurn(this);
+                }
 
-                toggleTurn = new ToggleTurn();
-                toggleTurn.initializeTurn(this);
 
                 mSocket.connect();
                 mSocket.emit("join_game", gameId);
