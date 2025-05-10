@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
@@ -22,8 +23,8 @@ public class ToggleTurn {
         GameStateRepository.getInstance().fetchGameStateById(context,
                 GameStateRepository.getInstance().getCurrentGameState().getId(),
                 gameState -> {
-                    toggleTurn(topCardsContainer, false);
-                    toggleTurn(bottomCardsContainer, isNewGame);
+                    toggleTurn(context, topCardsContainer, false);
+                    toggleTurn(context, bottomCardsContainer, isNewGame);
                 },
                 (exception) -> {Log.e("SERVER", "Error in ToggleTurn (fetch): " + exception.getMessage());}
         );
@@ -31,7 +32,7 @@ public class ToggleTurn {
 
     public boolean isBottomTurn() {
         String currentTurn = GameStateRepository.getInstance().getCurrentGameState().getCurrentTurn();
-        String bottomPlayerName = GameStateRepository.getInstance().getCurrentGameState().getPlayers().get(1).getName();
+        String bottomPlayerName = GameStateRepository.getInstance().getCurrentGameState().getPlayers().get(0).getName();
         return currentTurn.equals(bottomPlayerName);
     }
 
@@ -47,7 +48,7 @@ public class ToggleTurn {
         else nextTurn = playerOne.getName();
         GameStateRepository.getInstance().getCurrentGameState().setCurrentTurn(nextTurn);
 
-        toggleTurn(bottomCardsContainer, isBottomTurn());
+        toggleTurn(context, bottomCardsContainer, isBottomTurn());
 
         for (int row = 1; row <= 6; row++) {
             for (int col = 1; col <= 6; col++) {
@@ -92,11 +93,16 @@ public class ToggleTurn {
         MainActivity.emitGameState();
     }
 
-    public void toggleTurn(LinearLayout cardsContainer, boolean isTurn) {
+    public void toggleTurn(Context context, LinearLayout cardsContainer, boolean isTurn) {
+        Activity activity = (Activity) context;
+        Button plantsButton = activity.findViewById(R.id.plants_button);
+        Button weatherButton = activity.findViewById(R.id.weather_button);
         for (int i = 0; i < cardsContainer.getChildCount(); i++) {
             View card = cardsContainer.getChildAt(i);
             card.setAlpha(isTurn ? 1.0f : 0.5f);
             card.setEnabled(isTurn);
+            plantsButton.setEnabled(isTurn);
+            weatherButton.setEnabled(isTurn);
         }
     }
 

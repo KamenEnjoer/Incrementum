@@ -30,7 +30,7 @@ public class ImageManager {
         }
 
         Drawable[] layers = new Drawable[]{
-                cellView.getBackground() != null ? cellView.getBackground() : new ColorDrawable(Color.TRANSPARENT),
+                cellView.getBackground() != null ? cellView.getBackground() : context.getDrawable(R.drawable.card_background),
                 plantCard!=null ? context.getDrawable(imageResId) : new ColorDrawable(Color.TRANSPARENT),
                 weatherCard!=null ? borderDrawable : new ColorDrawable(Color.TRANSPARENT),
         };

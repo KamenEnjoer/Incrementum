@@ -2,6 +2,7 @@ package com.example.incrementum;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.util.Log;
 import android.view.DragEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,30 +12,34 @@ import androidx.appcompat.app.AppCompatActivity;
 
 public class GameFieldGeneration {
     static public void generateGameField(GridLayout gridLayout, Context context) {
+        gridLayout.removeAllViews();
         int rowCount = 6;
         int columnCount = 6;
         gridLayout.setRowCount(rowCount);
         gridLayout.setColumnCount(columnCount);
-        int totalCells = rowCount * columnCount;
-        for (int i = 0; i < totalCells; i++) {
-            ImageView cell = new ImageView(context);
-            cell.setBackgroundResource(R.drawable.card_background);
-            cell.setClipToOutline(true);
-            cell.setScaleType(ImageView.ScaleType.CENTER_CROP);
 
-            GridLayout.LayoutParams params = new GridLayout.LayoutParams();
-            params.width = 0;
-            params.height = 0;
-            params.columnSpec = GridLayout.spec(i % columnCount, 1, 1f);
-            params.rowSpec = GridLayout.spec(i / rowCount, 1, 1f);
-            params.setMargins(4, 4, 4, 4);
+        for (int row = 1; row <= 6; row++) {
+            for (int col = 1; col <= 6; col++) {
+                Cell cell = GameStateRepository.getInstance().getCurrentGameState().getBoard().get("row" + row).get("column" + col);
+                ImageView cellView = new ImageView(context);
+                ImageManager.setNewImage(context, cell, cellView);
+                cellView.setClipToOutline(true);
+                cellView.setScaleType(ImageView.ScaleType.CENTER_CROP);
 
-            cell.setLayoutParams(params);
-            char row = (char) ('A' + (i / rowCount));
-            cell.setTag(row + String.valueOf((i % columnCount)+1));
+                GridLayout.LayoutParams params = new GridLayout.LayoutParams();
+                params.width = 0;
+                params.height = 0;
+                params.columnSpec = GridLayout.spec(col-1, 1, 1f);
+                params.rowSpec = GridLayout.spec(row-1, 1, 1f);
+                params.setMargins(4, 4, 4, 4);
+                cellView.setLayoutParams(params);
 
-            setupDragAndDropForCell(cell, context);
-            gridLayout.addView(cell);
+                char rowChar = (char) ('A' + (row-1));
+                cellView.setTag(rowChar + String.valueOf(col));
+
+                setupDragAndDropForCell(cellView, context);
+                gridLayout.addView(cellView);
+            }
         }
     }
 
@@ -115,13 +120,22 @@ public class GameFieldGeneration {
                             }
                         }
 
+                        ToggleTurn toggleTurn = new ToggleTurn();
                         View draggedView = (View) event.getLocalState();
                         ViewGroup parent = (ViewGroup) draggedView.getParent();
                         if (parent != null) {
+                            Player player;
+                            if (toggleTurn.isBottomTurn()) player = GameStateRepository.getInstance().getCurrentGameState().getPlayers().get(0);
+                            else player = GameStateRepository.getInstance().getCurrentGameState().getPlayers().get(1);
+                            for (String x: player.getCardsIdInHand())
+                            {
+                                if (card.getId().equals(x)) {
+                                    player.removeCardIdFromHand(x);
+                                    break;
+                                }
+                            }
                             parent.removeView(draggedView);
                         }
-
-                        ToggleTurn toggleTurn = new ToggleTurn();
                         toggleTurn.switchTurn(v.getContext());
                     }
                     return true;

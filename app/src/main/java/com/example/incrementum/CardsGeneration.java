@@ -37,8 +37,15 @@ public class CardsGeneration {
         topCardsContainer.removeAllViews();
         bottomCardsContainer.removeAllViews();
 
-        Player playerOne = GameStateRepository.getInstance().getCurrentGameState().getPlayers().get(0);
-        Player playerTwo = GameStateRepository.getInstance().getCurrentGameState().getPlayers().get(1);
+        Player playerOne;
+        Player playerTwo;
+        if (MainActivity.isNewGame){
+            playerOne = GameStateRepository.getInstance().getCurrentGameState().getPlayers().get(0);
+            playerTwo = GameStateRepository.getInstance().getCurrentGameState().getPlayers().get(1);
+        } else { playerOne = GameStateRepository.getInstance().getCurrentGameState().getPlayers().get(0);
+            playerTwo = GameStateRepository.getInstance().getCurrentGameState().getPlayers().get(1);
+        }
+
         Card card;
         for (String x: playerOne.getCardsIdInHand()) {
             card = CardsRepository.getInstance().getCardById(x);

@@ -28,7 +28,7 @@ public class MainActivity extends AppCompatActivity {
     TextView bottomPoints;
     TextView topPoints;
     public static String gameId;
-    public boolean isNewGame;
+    public static boolean isNewGame;
 
     private static Socket mSocket;
     {
@@ -53,8 +53,11 @@ public class MainActivity extends AppCompatActivity {
                 topPoints =  findViewById(R.id.top_points);
                 Player playerOne = GameStateRepository.getInstance().getCurrentGameState().getPlayers().get(0);
                 Player playerTwo = GameStateRepository.getInstance().getCurrentGameState().getPlayers().get(1);
-                topPoints.setText(playerOne.getName() + " turi " + playerOne.getPoints() + " taškų.");
-                bottomPoints.setText(playerTwo.getName() + " turi " + playerTwo.getPoints() + " taškų.");
+                if (isNewGame){topPoints.setText(playerTwo.getName() + " turi " + playerTwo.getPoints() + " taškų.");
+                    bottomPoints.setText(playerOne.getName() + " turi " + playerOne.getPoints() + " taškų.");
+                } else {topPoints.setText(playerOne.getName() + " turi " + playerOne.getPoints() + " taškų.");
+                    bottomPoints.setText(playerTwo.getName() + " turi " + playerTwo.getPoints() + " taškų.");
+                }
 
                 GridLayout gameGrid = findViewById(R.id.game_grid);
                 topCardsContainer = findViewById(R.id.top_cards_container);
@@ -63,12 +66,12 @@ public class MainActivity extends AppCompatActivity {
                 GameFieldGeneration.generateGameField(gameGrid, this);
 
                 cardsGeneration = new CardsGeneration();
+                toggleTurn = new ToggleTurn();
                 if (isNewGame) {
                     cardsGeneration.cardsGenerationOnStart(this);
                     GameStateRepository.getInstance().updateGameState(this, gameId,
                         GameStateRepository.getInstance().getCurrentGameState(),
                         ()->{
-                            toggleTurn = new ToggleTurn();
                             toggleTurn.initializeTurn(this, isNewGame);
                         },
                         (exception) -> Log.e("SERVER", "Error fetchGameStateById in MainMenu: " + exception.getMessage())
@@ -76,7 +79,6 @@ public class MainActivity extends AppCompatActivity {
                 }
                 else {
                     cardsGeneration.cardsRefresh(this);
-                    toggleTurn = new ToggleTurn();
                     toggleTurn.initializeTurn(this, isNewGame);
                 }
 
@@ -91,15 +93,16 @@ public class MainActivity extends AppCompatActivity {
                                 String json = data.toString();
                                 GameState updatedGameState = new Gson().fromJson(json, GameState.class);
                                 if (!updatedGameState.getCurrentTurn().equals(GameStateRepository.getInstance().getCurrentGameState().getCurrentTurn())){
+                                    Log.d("ABOBA1", String.valueOf(updatedGameState.getPlayers().get(0).getCardsIdInHand().size()));
                                     GameStateRepository.getInstance().setCurrentGameState(updatedGameState);
                                     cardsGeneration.cardsRefresh(MainActivity.this);
-                                    toggleTurn.toggleTurn(topCardsContainer, false);
+                                    GameFieldGeneration.generateGameField(gameGrid, MainActivity.this);
+                                    toggleTurn.toggleTurn(MainActivity.this, topCardsContainer, false);
                                     GameState currentGameState = GameStateRepository.getInstance().getCurrentGameState();
                                     if (isNewGame && currentGameState.getCurrentTurn().equals(currentGameState.getPlayers().get(0).getName()) ||
                                         !isNewGame && currentGameState.getCurrentTurn().equals(currentGameState.getPlayers().get(1).getName())){
-                                        toggleTurn.toggleTurn(bottomCardsContainer, true);
-                                    } else toggleTurn.toggleTurn(bottomCardsContainer, false);
-
+                                        toggleTurn.toggleTurn(MainActivity.this, bottomCardsContainer, true);
+                                    } else toggleTurn.toggleTurn(MainActivity.this, bottomCardsContainer, false);
                                 }
                             } catch (Exception e) {
                                 Log.e("SOCKET.IO", "Error parsing received GameState", e);
@@ -131,10 +134,6 @@ public class MainActivity extends AppCompatActivity {
         Gson gson = new Gson();
         String jsonString = gson.toJson(GameStateRepository.getInstance().getCurrentGameState());
         JSONObject jsonObject;
-
-        Log.d("ABOBA", "5 Emitting GameState - Player0 cards = " + GameStateRepository.getInstance().getCurrentGameState().getPlayers().get(0).getCardsIdInHand().size());
-        Log.d("ABOBA", "5 Emitting GameState - Player1 cards = " + GameStateRepository.getInstance().getCurrentGameState().getPlayers().get(1).getCardsIdInHand().size());
-
         try {
             jsonObject = new JSONObject(jsonString);
         } catch (JSONException e) {
@@ -147,10 +146,10 @@ public class MainActivity extends AppCompatActivity {
 
     public void addNewCard(String type) {
         Player player;
-        if (GameStateRepository.getInstance().getCurrentGameState().getCurrentTurn().equals(GameStateRepository.getInstance().getCurrentGameState().getPlayers().get(0).getName())){
+        GameState currentGameState = GameStateRepository.getInstance().getCurrentGameState();
+        if (currentGameState.getCurrentTurn().equals(currentGameState.getPlayers().get(0).getName())){
             player=GameStateRepository.getInstance().getCurrentGameState().getPlayers().get(0);
-        }
-        else player=GameStateRepository.getInstance().getCurrentGameState().getPlayers().get(1);
+        } else player=GameStateRepository.getInstance().getCurrentGameState().getPlayers().get(1);
         cardsGeneration.oneCardGeneration(this, type, toggleTurn.currentPlayerContainer(this), player);
         toggleTurn.switchTurn(this);
     }
