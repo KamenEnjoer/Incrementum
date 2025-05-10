@@ -51,8 +51,8 @@ public class MainActivity extends AppCompatActivity {
             () -> {
                 bottomPoints = findViewById(R.id.bottom_points);
                 topPoints =  findViewById(R.id.top_points);
-                Player playerOne = PlayersRepository.getInstance().getPlayerOne();
-                Player playerTwo = PlayersRepository.getInstance().getPlayerTwo();
+                Player playerOne = GameStateRepository.getInstance().getCurrentGameState().getPlayers().get(0);
+                Player playerTwo = GameStateRepository.getInstance().getCurrentGameState().getPlayers().get(1);
                 topPoints.setText(playerOne.getName() + " turi " + playerOne.getPoints() + " taškų.");
                 bottomPoints.setText(playerTwo.getName() + " turi " + playerTwo.getPoints() + " taškų.");
 
@@ -86,12 +86,10 @@ public class MainActivity extends AppCompatActivity {
                             try {
                                 String json = data.toString();
                                 GameState updatedGameState = new Gson().fromJson(json, GameState.class);
-                                Log.d("SOCKET", "Getting GameState.");
                                 if (!updatedGameState.getCurrentTurn().equals(GameStateRepository.getInstance().getCurrentGameState().getCurrentTurn())){
-                                    Log.d("SOCKET", "Updated GameState.");
+                                    Log.d("ABOBA", "Updated GameState.");
                                     GameStateRepository.getInstance().fetchGameStateById(MainActivity.this, gameId,
                                             gameState -> {
-                                                PlayersRepository.getInstance().setPlayers(gameState.getPlayers().get(0), gameState.getPlayers().get(1));
                                                 cardsGeneration.cardsRefresh(MainActivity.this);
                                             },
                                             (exception) -> Log.e("SERVER", "Error fetchGameStateById in MainMenu: " + exception.getMessage())
@@ -104,6 +102,8 @@ public class MainActivity extends AppCompatActivity {
                         });
                     }
                 });
+                Log.d("ABOBA", "02 Emitting GameState - Player0 cards = " + GameStateRepository.getInstance().getCurrentGameState().getPlayers().get(0).getCardsIdInHand().size());
+                Log.d("ABOBA", "02 Emitting GameState - Player1 cards = " + GameStateRepository.getInstance().getCurrentGameState().getPlayers().get(1).getCardsIdInHand().size());
             },
             (exception) -> {Log.e("SERVER", "Error of cards loading: " + exception.getMessage());}
         );
@@ -128,6 +128,10 @@ public class MainActivity extends AppCompatActivity {
         Gson gson = new Gson();
         String jsonString = gson.toJson(GameStateRepository.getInstance().getCurrentGameState());
         JSONObject jsonObject;
+
+        Log.d("ABOBA", "5 Emitting GameState - Player0 cards = " + GameStateRepository.getInstance().getCurrentGameState().getPlayers().get(0).getCardsIdInHand().size());
+        Log.d("ABOBA", "5 Emitting GameState - Player1 cards = " + GameStateRepository.getInstance().getCurrentGameState().getPlayers().get(1).getCardsIdInHand().size());
+
         try {
             jsonObject = new JSONObject(jsonString);
         } catch (JSONException e) {
@@ -139,12 +143,18 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void addNewCard(String type) {
+        Log.d("ABOBA", "01 Emitting GameState - Player0 cards = " + GameStateRepository.getInstance().getCurrentGameState().getPlayers().get(0).getCardsIdInHand().size());
+        Log.d("ABOBA", "01 Emitting GameState - Player1 cards = " + GameStateRepository.getInstance().getCurrentGameState().getPlayers().get(1).getCardsIdInHand().size());
         Player player;
         if (GameStateRepository.getInstance().getCurrentGameState().getCurrentTurn().equals(GameStateRepository.getInstance().getCurrentGameState().getPlayers().get(0).getName())){
             player=GameStateRepository.getInstance().getCurrentGameState().getPlayers().get(0);
         }
         else player=GameStateRepository.getInstance().getCurrentGameState().getPlayers().get(1);
+        Log.d("ABOBA", "0 Emitting GameState - Player0 cards = " + GameStateRepository.getInstance().getCurrentGameState().getPlayers().get(0).getCardsIdInHand().size());
+        Log.d("ABOBA", "0 Emitting GameState - Player1 cards = " + GameStateRepository.getInstance().getCurrentGameState().getPlayers().get(1).getCardsIdInHand().size());
         cardsGeneration.oneCardGeneration(this, type, toggleTurn.currentPlayerContainer(this), player);
+        Log.d("ABOBA", "1 Emitting GameState - Player0 cards = " + GameStateRepository.getInstance().getCurrentGameState().getPlayers().get(0).getCardsIdInHand().size());
+        Log.d("ABOBA", "1 Emitting GameState - Player1 cards = " + GameStateRepository.getInstance().getCurrentGameState().getPlayers().get(1).getCardsIdInHand().size());
         toggleTurn.switchTurn(this);
     }
 }

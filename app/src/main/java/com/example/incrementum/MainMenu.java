@@ -51,7 +51,6 @@ public class MainMenu extends AppCompatActivity {
         gameListView.setOnItemClickListener((parent, view, position, id) -> {
             GameStateRepository.getInstance().fetchGameStateById(this, gameIds.get(position),
                 gameState -> {
-                    PlayersRepository.getInstance().initializePlayers(gameState.getPlayers().get(1), gameState.getPlayers().get(0));
                     Intent intent = new Intent(this, MainActivity.class);
                     intent.putExtra("GameStateId", gameIds.get(position));
                     startActivity(intent);
@@ -63,7 +62,7 @@ public class MainMenu extends AppCompatActivity {
             defaultGameState = new GameState();
             defaultGameState.setPlayers(generateDefaultPlayers());
             defaultGameState.setBoard(generateEmptyBoard());
-            defaultGameState.setCurrentTurn(PlayersRepository.getInstance().getPlayerOne().getName());
+            defaultGameState.setCurrentTurn(defaultGameState.getPlayers().get(0).getName());
 
             GameStateRepository.getInstance().createGameState(this, defaultGameState, () -> {
             }, (exception) -> Log.e("SERVER", "Error fetchGameStateById in MainMenu: " + exception.getMessage()),
@@ -96,8 +95,6 @@ public class MainMenu extends AppCompatActivity {
         List<Player> players = new ArrayList<>();
         Player player1 = new Player("Player 1");
         Player player2 = new Player("Player 2");
-        PlayersRepository.getInstance().initializePlayers(player1, player2);
-
         players.add(player1);
         players.add(player2);
         return players;

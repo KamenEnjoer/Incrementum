@@ -33,11 +33,16 @@ public class ToggleTurn {
     public void switchTurn(Context context) {
         Activity activity = (Activity) context;
         stepsCounter = activity.findViewById(R.id.steps_counter);
-        Player playerOne = PlayersRepository.getInstance().getPlayerOne();
-        Player playerTwo = PlayersRepository.getInstance().getPlayerTwo();
+        Player playerOne = GameStateRepository.getInstance().getCurrentGameState().getPlayers().get(0);
+        Player playerTwo = GameStateRepository.getInstance().getCurrentGameState().getPlayers().get(1);
         isBottomTurn = !isBottomTurn;
+        Log.d("ABOBA", "2 Emitting GameState - Player0 cards = " + GameStateRepository.getInstance().getCurrentGameState().getPlayers().get(0).getCardsIdInHand().size());
+        Log.d("ABOBA", "2 Emitting GameState - Player1 cards = " + GameStateRepository.getInstance().getCurrentGameState().getPlayers().get(1).getCardsIdInHand().size());
         if (isBottomTurn) GameStateRepository.getInstance().getCurrentGameState().setCurrentTurn(playerOne.getName());
         else GameStateRepository.getInstance().getCurrentGameState().setCurrentTurn(playerTwo.getName());
+        Log.d("ABOBA", "3 Emitting GameState - Player0 cards = " + GameStateRepository.getInstance().getCurrentGameState().getPlayers().get(0).getCardsIdInHand().size());
+        Log.d("ABOBA", "3 Emitting GameState - Player1 cards = " + GameStateRepository.getInstance().getCurrentGameState().getPlayers().get(1).getCardsIdInHand().size());
+
 
 
         toggleTurn(topCardsContainer, !isBottomTurn);
@@ -80,10 +85,13 @@ public class ToggleTurn {
 
         stepsCounter.setProgress(stepsCounter.getProgress()+1);
 
-        GameStateRepository.getInstance().getCurrentGameState().setPlayers(PlayersRepository.getInstance().getPlayers());
+        //GameStateRepository.getInstance().getCurrentGameState().setPlayers(PlayersRepository.getInstance().getPlayers());
         if (stepsCounter.getProgress() == 100){
             return;
         }
+        Log.d("ABOBA", "4 Emitting GameState - Player0 cards = " + GameStateRepository.getInstance().getCurrentGameState().getPlayers().get(0).getCardsIdInHand().size());
+        Log.d("ABOBA", "4 Emitting GameState - Player1 cards = " + GameStateRepository.getInstance().getCurrentGameState().getPlayers().get(1).getCardsIdInHand().size());
+
         MainActivity.emitGameState();
     }
 
