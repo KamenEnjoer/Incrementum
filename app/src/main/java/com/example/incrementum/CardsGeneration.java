@@ -34,14 +34,8 @@ public class CardsGeneration {
         LinearLayout topCardsContainer = activity.findViewById(R.id.top_cards_container);
         LinearLayout bottomCardsContainer = activity.findViewById(R.id.bottom_cards_container);
 
-        for (int i=0; i<topCardsContainer.getChildCount(); i++){
-            ViewGroup child = (ViewGroup) topCardsContainer.getChildAt(i);
-            topCardsContainer.removeView(child);
-        }
-        for (int i=0; i<bottomCardsContainer.getChildCount(); i++){
-            ViewGroup child = (ViewGroup) bottomCardsContainer.getChildAt(i);
-            bottomCardsContainer.removeView(child);
-        }
+        topCardsContainer.removeAllViews();
+        bottomCardsContainer.removeAllViews();
 
         Player playerOne = GameStateRepository.getInstance().getCurrentGameState().getPlayers().get(0);
         Player playerTwo = GameStateRepository.getInstance().getCurrentGameState().getPlayers().get(1);

@@ -69,7 +69,7 @@ public class MainActivity extends AppCompatActivity {
                         GameStateRepository.getInstance().getCurrentGameState(),
                         ()->{
                             toggleTurn = new ToggleTurn();
-                            toggleTurn.initializeTurn(this);
+                            toggleTurn.initializeTurn(this, isNewGame);
                         },
                         (exception) -> Log.e("SERVER", "Error fetchGameStateById in MainMenu: " + exception.getMessage())
                     );
@@ -77,9 +77,8 @@ public class MainActivity extends AppCompatActivity {
                 else {
                     cardsGeneration.cardsRefresh(this);
                     toggleTurn = new ToggleTurn();
-                    toggleTurn.initializeTurn(this);
+                    toggleTurn.initializeTurn(this, isNewGame);
                 }
-
 
                 mSocket.connect();
                 mSocket.emit("join_game", gameId);
@@ -92,13 +91,14 @@ public class MainActivity extends AppCompatActivity {
                                 String json = data.toString();
                                 GameState updatedGameState = new Gson().fromJson(json, GameState.class);
                                 if (!updatedGameState.getCurrentTurn().equals(GameStateRepository.getInstance().getCurrentGameState().getCurrentTurn())){
-                                    Log.d("ABOBA", "Updated GameState.");
-                                    GameStateRepository.getInstance().fetchGameStateById(MainActivity.this, gameId,
-                                            gameState -> {
-                                                cardsGeneration.cardsRefresh(MainActivity.this);
-                                            },
-                                            (exception) -> Log.e("SERVER", "Error fetchGameStateById in MainMenu: " + exception.getMessage())
-                                    );
+                                    GameStateRepository.getInstance().setCurrentGameState(updatedGameState);
+                                    cardsGeneration.cardsRefresh(MainActivity.this);
+                                    toggleTurn.toggleTurn(topCardsContainer, false);
+                                    GameState currentGameState = GameStateRepository.getInstance().getCurrentGameState();
+                                    if (isNewGame && currentGameState.getCurrentTurn().equals(currentGameState.getPlayers().get(0).getName()) ||
+                                        !isNewGame && currentGameState.getCurrentTurn().equals(currentGameState.getPlayers().get(1).getName())){
+                                        toggleTurn.toggleTurn(bottomCardsContainer, true);
+                                    } else toggleTurn.toggleTurn(bottomCardsContainer, false);
 
                                 }
                             } catch (Exception e) {
@@ -107,8 +107,6 @@ public class MainActivity extends AppCompatActivity {
                         });
                     }
                 });
-                Log.d("ABOBA", "02 Emitting GameState - Player0 cards = " + GameStateRepository.getInstance().getCurrentGameState().getPlayers().get(0).getCardsIdInHand().size());
-                Log.d("ABOBA", "02 Emitting GameState - Player1 cards = " + GameStateRepository.getInstance().getCurrentGameState().getPlayers().get(1).getCardsIdInHand().size());
             },
             (exception) -> {Log.e("SERVER", "Error of cards loading: " + exception.getMessage());}
         );
@@ -148,18 +146,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void addNewCard(String type) {
-        Log.d("ABOBA", "01 Emitting GameState - Player0 cards = " + GameStateRepository.getInstance().getCurrentGameState().getPlayers().get(0).getCardsIdInHand().size());
-        Log.d("ABOBA", "01 Emitting GameState - Player1 cards = " + GameStateRepository.getInstance().getCurrentGameState().getPlayers().get(1).getCardsIdInHand().size());
         Player player;
         if (GameStateRepository.getInstance().getCurrentGameState().getCurrentTurn().equals(GameStateRepository.getInstance().getCurrentGameState().getPlayers().get(0).getName())){
             player=GameStateRepository.getInstance().getCurrentGameState().getPlayers().get(0);
         }
         else player=GameStateRepository.getInstance().getCurrentGameState().getPlayers().get(1);
-        Log.d("ABOBA", "0 Emitting GameState - Player0 cards = " + GameStateRepository.getInstance().getCurrentGameState().getPlayers().get(0).getCardsIdInHand().size());
-        Log.d("ABOBA", "0 Emitting GameState - Player1 cards = " + GameStateRepository.getInstance().getCurrentGameState().getPlayers().get(1).getCardsIdInHand().size());
         cardsGeneration.oneCardGeneration(this, type, toggleTurn.currentPlayerContainer(this), player);
-        Log.d("ABOBA", "1 Emitting GameState - Player0 cards = " + GameStateRepository.getInstance().getCurrentGameState().getPlayers().get(0).getCardsIdInHand().size());
-        Log.d("ABOBA", "1 Emitting GameState - Player1 cards = " + GameStateRepository.getInstance().getCurrentGameState().getPlayers().get(1).getCardsIdInHand().size());
         toggleTurn.switchTurn(this);
     }
 }

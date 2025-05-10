@@ -10,12 +10,11 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 public class ToggleTurn {
-    private static boolean isBottomTurn = true;
     private static LinearLayout topCardsContainer;
     private static LinearLayout bottomCardsContainer;
     private static ProgressBar stepsCounter;
 
-    public void initializeTurn(Context context) {
+    public void initializeTurn(Context context, boolean isNewGame) {
         Activity activity = (Activity) context;
         topCardsContainer = activity.findViewById(R.id.top_cards_container);
         bottomCardsContainer = activity.findViewById(R.id.bottom_cards_container);
@@ -24,29 +23,31 @@ public class ToggleTurn {
                 GameStateRepository.getInstance().getCurrentGameState().getId(),
                 gameState -> {
                     toggleTurn(topCardsContainer, false);
-                    toggleTurn(bottomCardsContainer, true);
+                    toggleTurn(bottomCardsContainer, isNewGame);
                 },
                 (exception) -> {Log.e("SERVER", "Error in ToggleTurn (fetch): " + exception.getMessage());}
         );
     }
 
+    public boolean isBottomTurn() {
+        String currentTurn = GameStateRepository.getInstance().getCurrentGameState().getCurrentTurn();
+        String bottomPlayerName = GameStateRepository.getInstance().getCurrentGameState().getPlayers().get(1).getName();
+        return currentTurn.equals(bottomPlayerName);
+    }
+
     public void switchTurn(Context context) {
         Activity activity = (Activity) context;
         stepsCounter = activity.findViewById(R.id.steps_counter);
+
         Player playerOne = GameStateRepository.getInstance().getCurrentGameState().getPlayers().get(0);
         Player playerTwo = GameStateRepository.getInstance().getCurrentGameState().getPlayers().get(1);
-        isBottomTurn = !isBottomTurn;
-        Log.d("ABOBA", "2 Emitting GameState - Player0 cards = " + GameStateRepository.getInstance().getCurrentGameState().getPlayers().get(0).getCardsIdInHand().size());
-        Log.d("ABOBA", "2 Emitting GameState - Player1 cards = " + GameStateRepository.getInstance().getCurrentGameState().getPlayers().get(1).getCardsIdInHand().size());
-        if (isBottomTurn) GameStateRepository.getInstance().getCurrentGameState().setCurrentTurn(playerOne.getName());
-        else GameStateRepository.getInstance().getCurrentGameState().setCurrentTurn(playerTwo.getName());
-        Log.d("ABOBA", "3 Emitting GameState - Player0 cards = " + GameStateRepository.getInstance().getCurrentGameState().getPlayers().get(0).getCardsIdInHand().size());
-        Log.d("ABOBA", "3 Emitting GameState - Player1 cards = " + GameStateRepository.getInstance().getCurrentGameState().getPlayers().get(1).getCardsIdInHand().size());
+        String currentTurn = GameStateRepository.getInstance().getCurrentGameState().getCurrentTurn();
+        String nextTurn;
+        if (currentTurn.equals(playerOne.getName())) nextTurn = playerTwo.getName();
+        else nextTurn = playerOne.getName();
+        GameStateRepository.getInstance().getCurrentGameState().setCurrentTurn(nextTurn);
 
-
-
-        toggleTurn(topCardsContainer, !isBottomTurn);
-        toggleTurn(bottomCardsContainer, isBottomTurn);
+        toggleTurn(bottomCardsContainer, isBottomTurn());
 
         for (int row = 1; row <= 6; row++) {
             for (int col = 1; col <= 6; col++) {
@@ -88,13 +89,10 @@ public class ToggleTurn {
         if (stepsCounter.getProgress() == 100){
             return;
         }
-        Log.d("ABOBA", "4 Emitting GameState - Player0 cards = " + GameStateRepository.getInstance().getCurrentGameState().getPlayers().get(0).getCardsIdInHand().size());
-        Log.d("ABOBA", "4 Emitting GameState - Player1 cards = " + GameStateRepository.getInstance().getCurrentGameState().getPlayers().get(1).getCardsIdInHand().size());
-
         MainActivity.emitGameState();
     }
 
-    private void toggleTurn(LinearLayout cardsContainer, boolean isTurn) {
+    public void toggleTurn(LinearLayout cardsContainer, boolean isTurn) {
         for (int i = 0; i < cardsContainer.getChildCount(); i++) {
             View card = cardsContainer.getChildAt(i);
             card.setAlpha(isTurn ? 1.0f : 0.5f);
@@ -106,7 +104,7 @@ public class ToggleTurn {
         Activity activity = (Activity) context;
         topCardsContainer = activity.findViewById(R.id.top_cards_container);
         bottomCardsContainer = activity.findViewById(R.id.bottom_cards_container);
-        if (isBottomTurn) return bottomCardsContainer;
+        if (isBottomTurn()) return bottomCardsContainer;
         else return topCardsContainer;
     }
 }
