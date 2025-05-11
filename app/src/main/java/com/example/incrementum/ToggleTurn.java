@@ -32,25 +32,19 @@ public class ToggleTurn {
         );
     }
 
-    public boolean isBottomTurn() {
-        String currentTurn = GameStateRepository.getInstance().getCurrentGameState().getCurrentTurn();
-        return currentTurn.equals(MainActivity.currentPlayerName);
-    }
-
     public void switchTurn(Context context) {
         Activity activity = (Activity) context;
 
         Player playerOne = GameStateRepository.getInstance().getCurrentGameState().getPlayers().get(0);
         Player playerTwo = GameStateRepository.getInstance().getCurrentGameState().getPlayers().get(1);
         String currentTurn = GameStateRepository.getInstance().getCurrentGameState().getCurrentTurn();
-        String nextTurn;
 
         toggleTurn(context, bottomCardsContainer, false);
 
         for (int row = 1; row <= 6; row++) {
             for (int col = 1; col <= 6; col++) {
                 Cell cell = GameStateRepository.getInstance().getCurrentGameState().getBoard().get("row" + row).get("column" + col);
-                Card plantCard; Card weatherCard;
+                Card plantCard; Card weatherCard = null;
                 if (!cell.getWeatherCardId().isEmpty()) {
                     weatherCard = CardsRepository.getInstance().getCardById(cell.getWeatherCardId());
                     if (cell.getWeatherDuration()<weatherCard.getDuration()) cell.setWeatherDuration(cell.getWeatherDuration()+1);
@@ -61,20 +55,50 @@ public class ToggleTurn {
                 }
                 if (!cell.getPlantCardId().isEmpty()) {
                     plantCard = CardsRepository.getInstance().getCardById(cell.getPlantCardId());
-                    if (cell.getPlantLevel()<plantCard.getLevel()) {
-                        cell.setPlantProgress(cell.getPlantProgress() + 1);
-                        if (cell.getPlantProgress()==plantCard.getDuration()) {
-                            cell.setPlantLevel(cell.getPlantLevel()+1);
-                            cell.setPlantProgress(0);
 
-                            String tag = ((char) ('A' + row -1)) + String.valueOf(col);
-                            ImageView cellView = activity.getWindow().getDecorView().findViewWithTag(tag);
-                            ImageManager.setNewImage(context, cell, cellView);
+                    int favorableConditionValue=0;
+                    int unfavorableConditionValue=0;
+                    if (weatherCard!=null){
+                        for (Condition x: plantCard.getFavorableConditions()){
+                            if (weatherCard.getName().equals(x.getCondition())) {
+                                favorableConditionValue = x.getPower() * weatherCard.getLevel();
+                                break;
+                            }
+                        }
+                        for (Condition x: plantCard.getUnfavorableConditions()){
+                            if (weatherCard.getName().equals(x.getCondition())) {
+                                unfavorableConditionValue = x.getPower() * weatherCard.getLevel();
+                                break;
+                            }
                         }
                     }
-                    if (playerOne.getName().equals(cell.getPlayerName())) playerOne.setPoints(playerOne.getPoints()+cell.getPlantLevel());
-                    else playerTwo.setPoints(playerTwo.getPoints()+cell.getPlantLevel());
+
+                    if (cell.getPlantLevel()<plantCard.getLevel()) {
+                        cell.setPlantProgress(cell.getPlantProgress() + 1);
+                        if (cell.getPlantProgress() >= (plantCard.getDuration()-favorableConditionValue)) {
+                            cell.setPlantLevel(cell.getPlantLevel()+1);
+                            cell.setPlantProgress(0);
+                            cell.setPlantHP(cell.getPlantLevel());
+                        }
+                    }
+
+                    cell.setPlantHP(cell.getPlantHP() - unfavorableConditionValue);
+                    if (cell.getPlantHP()<1){
+                        cell.setPlayerName("");
+                        cell.setPlantCardId("");
+                        cell.setPlantLevel(0);
+                        cell.setPlantProgress(0);
+                        cell.setPlantHP(0);
+                    }
+                    else {
+                        if (playerOne.getName().equals(cell.getPlayerName())) playerOne.setPoints(playerOne.getPoints()+cell.getPlantLevel());
+                        else playerTwo.setPoints(playerTwo.getPoints()+cell.getPlantLevel());
+                    }
                 }
+
+                String tag = ((char) ('A' + row -1)) + String.valueOf(col);
+                ImageView cellView = activity.getWindow().getDecorView().findViewWithTag(tag);
+                ImageManager.setNewImage(context, cell, cellView);
             }
         }
         setStepsCounter(context, playerOne, playerTwo);
@@ -101,7 +125,7 @@ public class ToggleTurn {
         stepsCounter = activity.findViewById(R.id.steps_counter);
         stepsCounter.setProgress(stepsCounter.getProgress()+1);
 
-        if (stepsCounter.getProgress() == 4){
+        if (stepsCounter.getProgress() == 50){
             EndGameFragment endGameFragment = EndGameFragment.newInstance();
             endGameFragment.show(((AppCompatActivity) context).getSupportFragmentManager(), "EndGameFragment");
         }
@@ -118,13 +142,5 @@ public class ToggleTurn {
             plantsButton.setEnabled(isTurn);
             weatherButton.setEnabled(isTurn);
         }
-    }
-
-    public LinearLayout currentPlayerContainer(Context context){
-        Activity activity = (Activity) context;
-        topCardsContainer = activity.findViewById(R.id.top_cards_container);
-        bottomCardsContainer = activity.findViewById(R.id.bottom_cards_container);
-        if (isBottomTurn()) return bottomCardsContainer;
-        else return topCardsContainer;
     }
 }

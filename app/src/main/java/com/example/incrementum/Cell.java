@@ -25,6 +25,7 @@ public class Cell implements Serializable {
     public String getPlantCardId() {return plantCardId;}
     public int getPlantLevel() {return plantLevel;}
     public int getPlantProgress() {return plantProgress;}
+    public int getPlantHP() {return plantHP;}
     public String getWeatherCardId() {return weatherCardId;}
     public int getWeatherDuration() {return weatherDuration;}
 
@@ -32,6 +33,7 @@ public class Cell implements Serializable {
     public void setPlantCardId(String plantCardId) {this.plantCardId=plantCardId;}
     public void setPlantLevel(int plantLevel) {this.plantLevel = plantLevel;}
     public void setPlantProgress(int plantProgress) {this.plantProgress = plantProgress;}
+    public void setPlantHP(int plantHP) {this.plantHP = plantHP;}
     public void setWeatherCardId(String weatherCardId) {this.weatherCardId = weatherCardId;}
     public void setWeatherDuration(int weatherDuration) {this.weatherDuration = weatherDuration;}
 }

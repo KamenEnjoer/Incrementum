@@ -113,6 +113,7 @@ public class GameFieldGeneration {
                                             capturedCell.setPlantCardId(card.getId());
                                             capturedCell.setPlantLevel(1);
                                             capturedCell.setPlantProgress(0);
+                                            capturedCell.setPlantHP(1);
                                         }
                                         ImageManager.setNewImage(context, capturedCell, cellView);
                                     }

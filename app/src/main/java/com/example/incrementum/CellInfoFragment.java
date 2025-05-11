@@ -59,7 +59,8 @@ public class CellInfoFragment extends DialogFragment {
         if (plantCard!=null) {
             info += "auga " + plantCard.getName() + ".\n";
             if (capturedCell.getPlantLevel() == plantCard.getLevel()) info += "Jau išaugo.\n";
-            else info += (plantCard.getDuration() - capturedCell.getPlantProgress()) + " iki sekančio lygio.\n";
+            else info += (plantCard.getDuration() - capturedCell.getPlantProgress()) + " žingsnis iki sekančio lygio.\n";
+            info += plantCard.getName() + " turi " + capturedCell.getPlantHP() + " sveikatos taškų iš " + capturedCell.getPlantLevel() + ".\n";
             info += "Dabar šis langelis atneša " + capturedCell.getPlantLevel() + " taškų.\n";
         }
         else info += "niekas neauga.\n";
