@@ -11,7 +11,7 @@
         android:layout_height="400dp"
         android:orientation="vertical"
         android:layout_gravity="center"
-        android:background="@android:color/darker_gray"
+        android:background="#FF383838"
         android:padding="16dp">
 
         <LinearLayout

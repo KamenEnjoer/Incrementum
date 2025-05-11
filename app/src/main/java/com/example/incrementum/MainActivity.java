@@ -127,18 +127,12 @@ public class MainActivity extends AppCompatActivity {
         );
 
         plantsButton = findViewById(R.id.plants_button);
-        plantsButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                addNewCard("organizmas");
-            }
+        plantsButton.setOnClickListener(v -> {
+            addNewCard("organizmas");
         });
         weatherButton = findViewById(R.id.weather_button);
-        weatherButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                addNewCard("oras");
-            }
+        weatherButton.setOnClickListener(v -> {
+            addNewCard("oras");
         });
     }
 

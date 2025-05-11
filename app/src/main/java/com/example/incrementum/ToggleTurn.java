@@ -10,6 +10,8 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import androidx.appcompat.app.AppCompatActivity;
+
 public class ToggleTurn {
     private static LinearLayout topCardsContainer;
     private static LinearLayout bottomCardsContainer;
@@ -99,7 +101,7 @@ public class ToggleTurn {
         stepsCounter = activity.findViewById(R.id.steps_counter);
         stepsCounter.setProgress(stepsCounter.getProgress()+1);
 
-        if (stepsCounter.getProgress() == 100){
+        if (stepsCounter.getProgress() == 5){
             Player winner=GameStateRepository.getInstance().getCurrentGameState().getPlayers().get(0);
             if (winner.getPoints() < GameStateRepository.getInstance().getCurrentGameState().getPlayers().get(1).getPoints()){
                 winner = GameStateRepository.getInstance().getCurrentGameState().getPlayers().get(1);
@@ -108,6 +110,8 @@ public class ToggleTurn {
             }
             if (winner==null) Log.d("STOP GAME", "No winner, but game ended.");
             else Log.d("STOP GAME", "Winner: " + winner.getName());
+            EndGameFragment endGameFragment = EndGameFragment.newInstance();
+            endGameFragment.show(((AppCompatActivity) context).getSupportFragmentManager(), "EndGameFragment");
         }
     }
 
