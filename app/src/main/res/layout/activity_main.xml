@@ -85,7 +85,7 @@
         android:indeterminate="false"
         android:progressDrawable="@drawable/progress_bar"
         android:progress="0"
-        android:max="100"
+        android:max="50"
         style="@android:style/Widget.ProgressBar.Horizontal" />
 
     <TextView

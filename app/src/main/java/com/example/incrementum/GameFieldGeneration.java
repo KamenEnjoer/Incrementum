@@ -105,11 +105,11 @@ public class GameFieldGeneration {
 
                                         if (card.getType().equals("organizmas") && !capturedCell.getPlantCardId().isEmpty()) return true;
                                         else if (card.getType().equals("oras")) {
-                                            capturedCell.setPlayerName(GameStateRepository.getInstance().getCurrentGameState().getCurrentTurn());
                                             capturedCell.setWeatherCardId(card.getId());
-                                            capturedCell.setWeatherDuration(card.getDuration());
+                                            capturedCell.setWeatherDuration(0);
                                         }
                                         else {
+                                            capturedCell.setPlayerName(GameStateRepository.getInstance().getCurrentGameState().getCurrentTurn());
                                             capturedCell.setPlantCardId(card.getId());
                                             capturedCell.setPlantLevel(1);
                                             capturedCell.setPlantProgress(0);

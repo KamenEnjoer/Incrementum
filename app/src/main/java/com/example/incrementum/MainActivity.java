@@ -107,9 +107,14 @@ public class MainActivity extends AppCompatActivity {
 
                                     GameFieldGeneration.generateGameField(gameGrid, MainActivity.this);
                                     toggleTurn.toggleTurn(MainActivity.this, topCardsContainer, false);
-
                                     boolean isMyTurn = updatedGameState.getCurrentTurn().equals(MainActivity.currentPlayerName);
                                     toggleTurn.toggleTurn(MainActivity.this, bottomCardsContainer, isMyTurn);
+
+                                    Log.d("ABOBA1", "1: " + updatedGameState.getPlayers().get(0).getName());
+                                    toggleTurn.setStepsCounter(MainActivity.this,
+                                            updatedGameState.getPlayers().get(0),
+                                            updatedGameState.getPlayers().get(1));
+                                    Log.d("ABOBA2", "1: " + updatedGameState.getPlayers().get(0).getName());
                                 }
                             } catch (Exception e) {
                                 Log.e("SOCKET.IO", "Error parsing received GameState", e);

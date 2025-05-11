@@ -37,22 +37,18 @@ public class ToggleTurn {
 
     public void switchTurn(Context context) {
         Activity activity = (Activity) context;
-        stepsCounter = activity.findViewById(R.id.steps_counter);
 
         Player playerOne = GameStateRepository.getInstance().getCurrentGameState().getPlayers().get(0);
         Player playerTwo = GameStateRepository.getInstance().getCurrentGameState().getPlayers().get(1);
         String currentTurn = GameStateRepository.getInstance().getCurrentGameState().getCurrentTurn();
         String nextTurn;
-        if (currentTurn.equals(playerOne.getName())) nextTurn = playerTwo.getName();
-        else nextTurn = playerOne.getName();
-        GameStateRepository.getInstance().getCurrentGameState().setCurrentTurn(nextTurn);
 
         toggleTurn(context, bottomCardsContainer, isBottomTurn());
 
         for (int row = 1; row <= 6; row++) {
             for (int col = 1; col <= 6; col++) {
                 Cell cell = GameStateRepository.getInstance().getCurrentGameState().getBoard().get("row" + row).get("column" + col);
-                Card plantCard; Card weatherCard = null;
+                Card plantCard; Card weatherCard;
                 if (!cell.getWeatherCardId().isEmpty()) {
                     weatherCard = CardsRepository.getInstance().getCardById(cell.getWeatherCardId());
                     if (cell.getWeatherDuration()<weatherCard.getDuration()) cell.setWeatherDuration(cell.getWeatherDuration()+1);
@@ -76,20 +72,45 @@ public class ToggleTurn {
                     }
                     if (playerOne.getName().equals(cell.getPlayerName())) playerOne.setPoints(playerOne.getPoints()+cell.getPlantLevel());
                     else playerTwo.setPoints(playerTwo.getPoints()+cell.getPlantLevel());
-                    TextView bottomPoints = activity.findViewById(R.id.bottom_points);
-                    TextView topPoints =  activity.findViewById(R.id.top_points);
-                    topPoints.setText(playerOne.getName() + " turi " + playerOne.getPoints() + " taškų.");
-                    bottomPoints.setText(playerTwo.getName() + " turi " + playerTwo.getPoints() + " taškų.");
                 }
             }
         }
+        Log.d("ABOBA01", "1: " + playerOne.getName());
+        setStepsCounter(context, playerOne, playerTwo);
 
+        if (currentTurn.equals(playerOne.getName())) nextTurn = playerTwo.getName();
+        else nextTurn = playerOne.getName();
+        GameStateRepository.getInstance().getCurrentGameState().setCurrentTurn(nextTurn);
+        Log.d("ABOBA02", "1: " + playerOne.getName());
+        MainActivity.emitGameState();
+    }
+
+    public void setStepsCounter(Context context, Player playerOne, Player playerTwo){
+        Activity activity = (Activity) context;
+        TextView bottomPoints = activity.findViewById(R.id.bottom_points);
+        TextView topPoints = activity.findViewById(R.id.top_points);
+
+        if (MainActivity.currentPlayerName.equals(playerOne.getName())) {
+            topPoints.setText(playerTwo.getName() + " turi " + playerTwo.getPoints() + " taškų.");
+            bottomPoints.setText(playerOne.getName() + " turi " + playerOne.getPoints() + " taškų.");
+        } else {
+            topPoints.setText(playerOne.getName() + " turi " + playerOne.getPoints() + " taškų.");
+            bottomPoints.setText(playerTwo.getName() + " turi " + playerTwo.getPoints() + " taškų.");
+        }
+
+        stepsCounter = activity.findViewById(R.id.steps_counter);
         stepsCounter.setProgress(stepsCounter.getProgress()+1);
 
         if (stepsCounter.getProgress() == 100){
-            return;
+            Player winner=GameStateRepository.getInstance().getCurrentGameState().getPlayers().get(0);
+            if (winner.getPoints() < GameStateRepository.getInstance().getCurrentGameState().getPlayers().get(1).getPoints()){
+                winner = GameStateRepository.getInstance().getCurrentGameState().getPlayers().get(1);
+            } else if (winner.getPoints() == GameStateRepository.getInstance().getCurrentGameState().getPlayers().get(1).getPoints()){
+                winner = null;
+            }
+            if (winner==null) Log.d("STOP GAME", "No winner, but game ended.");
+            else Log.d("STOP GAME", "Winner: " + winner.getName());
         }
-        MainActivity.emitGameState();
     }
 
     public void toggleTurn(Context context, LinearLayout cardsContainer, boolean isTurn) {
