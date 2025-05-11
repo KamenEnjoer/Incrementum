@@ -29,11 +29,6 @@ public class GameStateRepository {
     }
 
     public void fetchGameState(Context context, Runnable onSuccess, Consumer<Exception> onError) {
-        if (gameStates != null && !gameStates.isEmpty()) {
-            onSuccess.run();
-            return;
-        }
-
         OkHttpClient client = new OkHttpClient();
         Request request = new Request.Builder()
                 .url("http://10.0.2.2:3000/gamestates")

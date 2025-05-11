@@ -35,12 +35,21 @@ app.get('/cards', async (req, res) => {
 app.get('/gamestates', async (req, res) => {
   try {
     const states = await GameState.find();
-    res.json(states);
+    const statesWithPlayers = states.map(state => {
+      const gameId = state._id.toString();
+      const connectedPlayers = gameSessions.has(gameId) ? gameSessions.get(gameId).size : 0;
+      return {
+        ...state.toObject(),
+        connectedPlayers
+      };
+    });
+    res.json(statesWithPlayers);
   } catch (err) {
     console.error('ALL GAMESTATES GETTING ERROR', err);
     res.status(500).json({ error: 'GAMESTATES WAS NOT FOUND WHEN ATTEMPTING TO GET.' });
   }
 });
+
 
 app.get('/gamestates/:id', async (req, res) => {
   try {
@@ -73,7 +82,7 @@ app.put('/gamestates/:id', async (req, res) => {
     if (!updatedGameState) {
       return res.status(404).json({ error: 'GAMESTATE BY ID WAS NOT FOUND WHEN ATTEMPTING TO UPDATE.' });
     }
-    io.to(updatedGameState._id.toString()).emit('gameStateUpdated', updatedGameState); // обновляем только участников этой игры
+    io.to(updatedGameState._id.toString()).emit('gameStateUpdated', updatedGameState);
     res.json(updatedGameState);
   } catch (err) {
     res.status(400).json({ error: 'GAMESTATE UPDATING ERROR', details: err.message });
@@ -81,12 +90,21 @@ app.put('/gamestates/:id', async (req, res) => {
 });
 
 // === Socket.IO ===
+
+const gameSessions = new Map();
+
 io.on('connection', (socket) => {
   console.log('A user connected: ' + socket.id);
 
   socket.on('join_game', async (gameId) => {
     socket.join(gameId);
     console.log(`User ${socket.id} joined game ${gameId}`);
+
+    if (!gameSessions.has(gameId)) {
+      gameSessions.set(gameId, new Set());
+    }
+    gameSessions.get(gameId).add(socket.id);
+
     try {
       const gameState = await GameState.findById(gameId);
       if (gameState) {
@@ -112,8 +130,40 @@ io.on('connection', (socket) => {
     }
   });
 
+
+  function cleanupGameIfEmpty(gameId) {
+    const socketsSet = gameSessions.get(gameId);
+    if (socketsSet && socketsSet.size === 0) {
+      console.log(`No players left in game ${gameId}. Deleting game state.`);
+
+      GameState.deleteOne({ _id: gameId })
+        .then(() => console.log(`GameState ${gameId} deleted from DB`))
+        .catch(err => console.error(`Error deleting GameState ${gameId}:`, err));
+
+      gameSessions.delete(gameId);
+    }
+  }
+
   socket.on('disconnect', () => {
     console.log('A user disconnected: ' + socket.id);
+
+    for (const [gameId, socketsSet] of gameSessions.entries()) {
+      if (socketsSet.has(socket.id)) {
+        socketsSet.delete(socket.id);
+        console.log(`User ${socket.id} left game ${gameId}`);
+        cleanupGameIfEmpty(gameId);
+      }
+    }
+  });
+
+  socket.on('leave_game', (gameId) => {
+    if (!gameId) return;
+    if (gameSessions.has(gameId)) {
+      const socketsSet = gameSessions.get(gameId);
+      socketsSet.delete(socket.id);
+      console.log(`User ${socket.id} left game ${gameId} (via leave_game)`);
+      cleanupGameIfEmpty(gameId);
+    }
   });
 });
 

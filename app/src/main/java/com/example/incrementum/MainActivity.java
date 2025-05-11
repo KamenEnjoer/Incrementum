@@ -110,11 +110,9 @@ public class MainActivity extends AppCompatActivity {
                                     boolean isMyTurn = updatedGameState.getCurrentTurn().equals(MainActivity.currentPlayerName);
                                     toggleTurn.toggleTurn(MainActivity.this, bottomCardsContainer, isMyTurn);
 
-                                    Log.d("ABOBA1", "1: " + updatedGameState.getPlayers().get(0).getName());
                                     toggleTurn.setStepsCounter(MainActivity.this,
                                             updatedGameState.getPlayers().get(0),
                                             updatedGameState.getPlayers().get(1));
-                                    Log.d("ABOBA2", "1: " + updatedGameState.getPlayers().get(0).getName());
                                 }
                             } catch (Exception e) {
                                 Log.e("SOCKET.IO", "Error parsing received GameState", e);
@@ -148,6 +146,12 @@ public class MainActivity extends AppCompatActivity {
         }
 
         mSocket.emit("update_game_state", jsonObject);
+    }
+
+    public static void leaveGameSession() {
+        if (mSocket != null && gameId != null) {
+            mSocket.emit("leave_game", gameId);
+        }
     }
 
     public void addNewCard(String type) {

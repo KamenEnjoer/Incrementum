@@ -101,15 +101,7 @@ public class ToggleTurn {
         stepsCounter = activity.findViewById(R.id.steps_counter);
         stepsCounter.setProgress(stepsCounter.getProgress()+1);
 
-        if (stepsCounter.getProgress() == 5){
-            Player winner=GameStateRepository.getInstance().getCurrentGameState().getPlayers().get(0);
-            if (winner.getPoints() < GameStateRepository.getInstance().getCurrentGameState().getPlayers().get(1).getPoints()){
-                winner = GameStateRepository.getInstance().getCurrentGameState().getPlayers().get(1);
-            } else if (winner.getPoints() == GameStateRepository.getInstance().getCurrentGameState().getPlayers().get(1).getPoints()){
-                winner = null;
-            }
-            if (winner==null) Log.d("STOP GAME", "No winner, but game ended.");
-            else Log.d("STOP GAME", "Winner: " + winner.getName());
+        if (stepsCounter.getProgress() == 4){
             EndGameFragment endGameFragment = EndGameFragment.newInstance();
             endGameFragment.show(((AppCompatActivity) context).getSupportFragmentManager(), "EndGameFragment");
         }
