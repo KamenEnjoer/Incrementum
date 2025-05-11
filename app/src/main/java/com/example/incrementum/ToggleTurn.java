@@ -43,7 +43,7 @@ public class ToggleTurn {
         String currentTurn = GameStateRepository.getInstance().getCurrentGameState().getCurrentTurn();
         String nextTurn;
 
-        toggleTurn(context, bottomCardsContainer, isBottomTurn());
+        toggleTurn(context, bottomCardsContainer, false);
 
         for (int row = 1; row <= 6; row++) {
             for (int col = 1; col <= 6; col++) {
@@ -75,13 +75,11 @@ public class ToggleTurn {
                 }
             }
         }
-        Log.d("ABOBA01", "1: " + playerOne.getName());
         setStepsCounter(context, playerOne, playerTwo);
 
-        if (currentTurn.equals(playerOne.getName())) nextTurn = playerTwo.getName();
-        else nextTurn = playerOne.getName();
-        GameStateRepository.getInstance().getCurrentGameState().setCurrentTurn(nextTurn);
-        Log.d("ABOBA02", "1: " + playerOne.getName());
+        if (currentTurn.equals(playerOne.getName())) GameStateRepository.getInstance().getCurrentGameState().setCurrentTurn(playerTwo.getName());
+        else GameStateRepository.getInstance().getCurrentGameState().setCurrentTurn(playerOne.getName());
+
         MainActivity.emitGameState();
     }
 

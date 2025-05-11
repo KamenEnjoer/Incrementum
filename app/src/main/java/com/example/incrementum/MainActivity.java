@@ -159,10 +159,11 @@ public class MainActivity extends AppCompatActivity {
     public void addNewCard(String type) {
         Player player;
         GameState currentGameState = GameStateRepository.getInstance().getCurrentGameState();
-        if (currentGameState.getCurrentTurn().equals(currentGameState.getPlayers().get(0).getName())){
+
+        if (currentPlayerName.equals(currentGameState.getPlayers().get(0).getName())){
             player=GameStateRepository.getInstance().getCurrentGameState().getPlayers().get(0);
         } else player=GameStateRepository.getInstance().getCurrentGameState().getPlayers().get(1);
-        cardsGeneration.oneCardGeneration(this, type, toggleTurn.currentPlayerContainer(this), player);
+        cardsGeneration.oneCardGeneration(this, type, bottomCardsContainer, player);
         toggleTurn.switchTurn(this);
     }
 }

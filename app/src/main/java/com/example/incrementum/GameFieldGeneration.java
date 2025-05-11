@@ -124,9 +124,10 @@ public class GameFieldGeneration {
                         View draggedView = (View) event.getLocalState();
                         ViewGroup parent = (ViewGroup) draggedView.getParent();
                         if (parent != null) {
+                            GameState gameState = GameStateRepository.getInstance().getCurrentGameState();
                             Player player;
-                            if (toggleTurn.isBottomTurn()) player = GameStateRepository.getInstance().getCurrentGameState().getPlayers().get(0);
-                            else player = GameStateRepository.getInstance().getCurrentGameState().getPlayers().get(1);
+                            if (MainActivity.currentPlayerName.equals(gameState.getPlayers().get(0).getName())) player = gameState.getPlayers().get(0);
+                            else player = gameState.getPlayers().get(1);
                             for (String x: player.getCardsIdInHand())
                             {
                                 if (card.getId().equals(x)) {
