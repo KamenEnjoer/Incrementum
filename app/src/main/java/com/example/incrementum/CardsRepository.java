@@ -60,10 +60,6 @@ public class CardsRepository {
         });
     }
 
-    public List<Card> getAllCards() {
-        return cards;
-    }
-
     public Card getCardById(String id) {
         if (cards == null) return null;
         for (Card card : cards) {

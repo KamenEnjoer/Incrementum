@@ -70,7 +70,6 @@ public class GameFieldGeneration {
                 case DragEvent.ACTION_DROP:
                     if (v instanceof ImageView) {
                         String draggedTag = event.getClipData().getItemAt(0).getText().toString();
-                        draggedTag = draggedTag.substring(draggedTag.indexOf("*") + 1);
                         Card card = CardsRepository.getInstance().getCardById(draggedTag);
 
                         int areaSize = 1;

@@ -74,8 +74,8 @@ public class ToggleTurn {
                     }
 
                     if (cell.getPlantLevel()<plantCard.getLevel()) {
-                        cell.setPlantProgress(cell.getPlantProgress() + 1);
-                        if (cell.getPlantProgress() >= (plantCard.getDuration()-favorableConditionValue)) {
+                        cell.setPlantProgress(cell.getPlantProgress() + 1 + favorableConditionValue);
+                        if (cell.getPlantProgress() >= plantCard.getDuration()) {
                             cell.setPlantLevel(cell.getPlantLevel()+1);
                             cell.setPlantProgress(0);
                             cell.setPlantHP(cell.getPlantLevel());
@@ -139,8 +139,8 @@ public class ToggleTurn {
             View card = cardsContainer.getChildAt(i);
             card.setAlpha(isTurn ? 1.0f : 0.5f);
             card.setEnabled(isTurn);
-            plantsButton.setEnabled(isTurn);
-            weatherButton.setEnabled(isTurn);
         }
+        plantsButton.setEnabled(isTurn);
+        weatherButton.setEnabled(isTurn);
     }
 }
